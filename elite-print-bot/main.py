@@ -1,4 +1,5 @@
 import os
+import httpx
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -7,7 +8,6 @@ import uvicorn
 
 app = FastAPI()
 
-# Enable CORS so your frontend can talk to the backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,17 +15,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Render will provide the API Key via Environment Variables
-import httpx
-
-# We manually create a client without proxies to avoid the Render bug
-http_client = httpx.Client(proxies=None)
+# NEW FIX: Use trust_env=False instead of proxies=None
+# This tells httpx to ignore the proxy settings on Render's servers
+http_client = httpx.Client(trust_env=False)
 
 client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
     http_client=http_client
 )
-# Your Master Instruction Manual
+
 SYSTEM_PROMPT = """
 You are the Elite Print Studio AI Concierge. 
 PRICES: 
@@ -37,7 +35,7 @@ DIRECTIVE: Be professional. Encourage users to upload designs via the toolbelt.
 
 @app.get("/")
 async def read_index():
-    # This serves your HTML file when you visit the URL
+    # Make sure index.html is in the same folder as main.py
     return FileResponse("index.html")
 
 @app.post("/chat")
@@ -55,7 +53,5 @@ async def chat(request: Request):
     return {"response": completion.choices[0].message.content}
 
 if __name__ == "__main__":
-    # Render uses the PORT environment variable
     port = int(os.environ.get("PORT", 8000))
-
     uvicorn.run(app, host="0.0.0.0", port=port)
