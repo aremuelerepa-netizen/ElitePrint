@@ -31,6 +31,7 @@ GUIDELINES:
    • 8x10: ₦8k | 12x16: ₦16k | 24x36: ₦50k
    • Mugs: ₦4.5k | Pillows: ₦12.5k
 5. PAYMENT: Show OPay 8088060408 ONLY when the customer says they are ready to order.
+6. WHATSAPP RULE: Tell them they can click the WhatsApp button below to send their high-quality files and proof of payment directly to our production team.
 
 BEHAVIOR: Be professional like a real Ibadan business owner. Do not ramble.
 """
@@ -61,3 +62,4 @@ async def chat(request: Request):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run(app, host="0.0.0.0", port=port)
+
