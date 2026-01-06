@@ -142,8 +142,73 @@
     </div>
 </div>
 
-<script src="./elite-print-bot/script.js"></script>
+<script>
+// --- ALL YOUR JAVASCRIPT GOES HERE ---
+function scrollToBottom() {
+    const chatBox = document.getElementById('chat-box');
+    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+window.onload = () => {
+    const savedChat = localStorage.getItem('eliteChatHistory');
+    if (savedChat) {
+        document.getElementById('chat-box').innerHTML = savedChat;
+        scrollToBottom();
+    }
+};
+
+function toggleMenu() {
+    document.getElementById('sidebar').classList.toggle('active');
+    document.getElementById('overlay').classList.toggle('active');
+}
+
+function sendQuickMsg(text) {
+    document.getElementById('userInput').value = text;
+    sendMessage();
+}
+
+async function sendMessage() {
+    const input = document.getElementById('userInput');
+    const chatBox = document.getElementById('chat-box');
+    if (!input || !chatBox) return;
+
+    const userText = input.value.trim();
+    if (!userText) return;
+
+    chatBox.innerHTML += `<div class="msg user-msg">${userText}</div>`;
+    input.value = '';
+    scrollToBottom();
+
+    const loadingId = "load-" + Date.now();
+    chatBox.innerHTML += `<div class="msg bot-msg" id="${loadingId}">Elite AI is typing...</div>`;
+    scrollToBottom();
+
+    try {
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: userText })
+        });
+        const data = await response.json();
+        document.getElementById(loadingId).innerText = data.response;
+        localStorage.setItem('eliteChatHistory', chatBox.innerHTML);
+    } catch (error) {
+        document.getElementById(loadingId).innerText = "Connection lost. Please check your data.";
+    }
+    scrollToBottom();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    }
+});
+</script>
 
 </body>
 </html>
+
 
