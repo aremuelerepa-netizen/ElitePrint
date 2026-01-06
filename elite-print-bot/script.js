@@ -1,31 +1,41 @@
-// Function to scroll chat to the bottom
+// 1. SCROLL TO BOTTOM
 function scrollToBottom() {
     const chatBox = document.getElementById('chat-box');
-    chatBox.scrollTop = chatBox.scrollHeight;
+    if (chatBox) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
 }
 
-// Load history from the phone's memory when page opens
+// 2. LOAD HISTORY
 window.onload = () => {
+    const chatBox = document.getElementById('chat-box');
     const savedChat = localStorage.getItem('eliteChatHistory');
-    if (savedChat) {
-        document.getElementById('chat-box').innerHTML = savedChat;
+    if (savedChat && chatBox) {
+        chatBox.innerHTML = savedChat;
         scrollToBottom();
     }
 };
 
-// Sidebar Toggle
+// 3. MENU TOGGLE
 function toggleMenu() {
-    document.getElementById('sidebar').classList.toggle('active');
-    document.getElementById('overlay').classList.toggle('active');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    if (sidebar && overlay) {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
 }
 
-// Quick Button Click
+// 4. QUICK MESSAGES
 function sendQuickMsg(text) {
-    document.getElementById('userInput').value = text;
-    sendMessage();
+    const input = document.getElementById('userInput');
+    if (input) {
+        input.value = text;
+        sendMessage();
+    }
 }
 
-// Clear History
+// 5. CLEAR HISTORY
 function clearChat() {
     if(confirm("Start a new chat?")) {
         localStorage.removeItem('eliteChatHistory');
@@ -33,26 +43,27 @@ function clearChat() {
     }
 }
 
-// MAIN FUNCTION: TALK TO LLAMA
+// 6. MAIN SEND FUNCTION (TALK TO LLAMA)
 async function sendMessage() {
     const input = document.getElementById('userInput');
     const chatBox = document.getElementById('chat-box');
-    const userText = input.value.trim();
+    
+    if (!input || !chatBox) return;
 
+    const userText = input.value.trim();
     if (!userText) return;
 
-    // 1. Show User Text
+    // Show User Text
     chatBox.innerHTML += `<div class="msg user-msg">${userText}</div>`;
     input.value = '';
     scrollToBottom();
 
-    // 2. Show "Typing..." Bubble
+    // Show "Typing..." Bubble
     const loadingId = "load-" + Date.now();
     chatBox.innerHTML += `<div class="msg bot-msg" id="${loadingId}">Elite AI is typing...</div>`;
     scrollToBottom();
 
     try {
-        // 3. Connect to your Render backend
         const response = await fetch('/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -61,21 +72,32 @@ async function sendMessage() {
 
         const data = await response.json();
         
-        // 4. Update with real Llama reply
-        document.getElementById(loadingId).innerText = data.response;
+        const botBubble = document.getElementById(loadingId);
+        if (botBubble) {
+            botBubble.innerText = data.response;
+        }
         
-        // 5. Save history
+        // Save history to device
         localStorage.setItem('eliteChatHistory', chatBox.innerHTML);
 
     } catch (error) {
-        document.getElementById(loadingId).innerText = "Connection lost. Please check your internet.";
+        const botBubble = document.getElementById(loadingId);
+        if (botBubble) {
+            botBubble.innerText = "Connection weak. Please check your data.";
+        }
     }
     scrollToBottom();
 }
 
-// Allow "Enter" key to send
-document.getElementById('userInput').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        sendMessage();
+// 7. KEYBOARD LISTENER (ENTER KEY)
+// Wrapped in DOMContentLoaded so it doesn't break buttons on load
+document.addEventListener('DOMContentLoaded', () => {
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
     }
 });
