@@ -24,13 +24,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100dvh; /* Fix for Android/iOS browsers */
+            height: 100dvh; /* Dynamic height for Android/iOS browsers */
             overflow: hidden;
         }
 
         .chat-container {
             width: 100%; 
-            height: 100dvh; /* Dynamic viewport height */
+            height: 100dvh; 
             background: var(--light-bg);
             display: flex; flex-direction: column;
             position: relative; overflow: hidden;
@@ -86,11 +86,12 @@
             background: white; display: flex; gap: 10px; align-items: center; 
             border-top: 1px solid #ddd;
             position: relative;
+            z-index: 10;
         }
         input { 
             flex: 1; background: #f1f1f1; border: 1px solid #ddd; 
             padding: 12px 15px; border-radius: 20px; outline: none; 
-            font-size: 16px; /* Prevents auto-zoom on mobile */
+            font-size: 16px; /* Critical fix for mobile zoom */
         }
         .send-btn { 
             background: var(--black); color: var(--gold); 
@@ -121,27 +122,27 @@
 
     <div class="chat-history" id="chat-box">
         <div class="msg bot-msg">
-            Hi! I'm the Elite Print AI. How can I assist you with your printing needs today?
+            Hi! I'm the Elite Print AI. How can I assist you today?
             <div class="action-container">
                 <div class="action-btn" onclick="sendQuickMsg('Show me the price list')">View Price List <ion-icon name="pricetag-outline"></ion-icon></div>
-                <div class="action-btn" onclick="sendQuickMsg('I want to track an order')">Track Order <ion-icon name="search-outline"></ion-icon></div>
+                <div class="action-btn" onclick="sendQuickMsg('I want to pay')">Payment Details <ion-icon name="card-outline"></ion-icon></div>
             </div>
         </div>
     </div>
 
     <div class="toolbelt">
         <ion-icon name="image-outline" class="tool-icon" onclick="sendQuickMsg('How do I upload my design?')"></ion-icon>
-        <ion-icon name="card-outline" class="tool-icon" onclick="sendQuickMsg('I want to make a payment')"></ion-icon>
+        <ion-icon name="card-outline" class="tool-icon" onclick="sendQuickMsg('Send account details')"></ion-icon>
         <ion-icon name="help-circle-outline" class="tool-icon" onclick="sendQuickMsg('Help')"></ion-icon>
     </div>
 
     <div class="input-bar">
         <input type="text" id="userInput" placeholder="Ask anything..." autocomplete="off">
-        <button class="send-btn" onclick="sendMessage()"><ion-icon name="send"></ion-icon></button>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()"><ion-icon name="send"></ion-icon></button>
     </div>
 </div>
 
-<script src="script.js"></script>
+<script src="./script.js"></script>
 
 </body>
 </html>
