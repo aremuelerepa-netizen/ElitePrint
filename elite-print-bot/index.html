@@ -24,7 +24,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100dvh; /* Dynamic height for Android/iOS browsers */
+            height: 100dvh;
             overflow: hidden;
         }
 
@@ -68,6 +68,7 @@
         .msg { max-width: 85%; padding: 12px 16px; font-size: 14px; line-height: 1.5; border-radius: 18px; word-wrap: break-word; }
         .bot-msg { background: var(--bot-bubble); align-self: flex-start; border-bottom-left-radius: 4px; color: #333; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .user-msg { background: var(--user-bubble); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .chat-img { max-width: 100%; border-radius: 10px; margin-top: 5px; display: block; }
 
         .action-container { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
         .action-btn {
@@ -80,7 +81,7 @@
         .toolbelt { display: flex; justify-content: space-around; padding: 10px 0; background: white; border-top: 1px solid #eee; }
         .tool-icon { font-size: 24px; color: #555; cursor: pointer; }
 
-        /* --- INPUT BAR (Android Fixed) --- */
+        /* --- INPUT BAR --- */
         .input-bar { 
             padding: 10px 15px 30px; 
             background: white; display: flex; gap: 10px; align-items: center; 
@@ -88,10 +89,10 @@
             position: relative;
             z-index: 10;
         }
-        input { 
+        input[type="text"] { 
             flex: 1; background: #f1f1f1; border: 1px solid #ddd; 
             padding: 12px 15px; border-radius: 20px; outline: none; 
-            font-size: 16px; /* Critical fix for mobile zoom */
+            font-size: 16px;
         }
         .send-btn { 
             background: var(--black); color: var(--gold); 
@@ -107,7 +108,7 @@
     <div id="sidebar" class="sidebar">
         <div class="sidebar-header">Elite Print Studio</div>
         <div class="sidebar-item" onclick="clearChat()"><ion-icon name="trash-outline"></ion-icon> Clear History</div>
-        <div class="sidebar-item" onclick="window.open('https://wa.me/c/2348088060408')"><ion-icon name="briefcase-outline"></ion-icon> Products</div>
+        <div class="sidebar-item" onclick="window.open('https://wa.me/c/2348088060408')"><ion-icon name="briefcase-outline"></ion-icon> Catalog</div>
         <div class="sidebar-item" onclick="sendQuickMsg('Where is your office?')"><ion-icon name="location-outline"></ion-icon> Location</div>
     </div>
     <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
@@ -116,40 +117,41 @@
         <ion-icon name="menu-outline" class="menu-btn" onclick="toggleMenu()"></ion-icon>
         <div class="header-info">
             <div class="name">Elite Studio <ion-icon name="checkmark-circle" style="color:var(--gold)"></ion-icon></div>
-            <div class="status" style="font-size: 11px; color:#888;">AI Concierge • Online</div>
+            <div class="status" style="font-size: 11px; color:#888;">Head Consultant • Online</div>
         </div>
     </div>
 
     <div class="chat-history" id="chat-box">
         <div class="msg bot-msg">
-            Hi! I'm the Elite Print AI. How can I assist you today?
+            Hello! I'm the Elite Print Consultant. How can I help with your printing or gifting needs today?
             <div class="action-container">
-                <div class="action-btn" onclick="sendQuickMsg('Show me the price list')">View Price List <ion-icon name="pricetag-outline"></ion-icon></div>
-                <div class="action-btn" onclick="sendQuickMsg('I want to pay')">Payment Details <ion-icon name="card-outline"></ion-icon></div>
+                <div class="action-btn" onclick="sendQuickMsg('Show me the price list')">View Prices <ion-icon name="pricetag-outline"></ion-icon></div>
+                <div class="action-btn" onclick="document.getElementById('fileInput').click()">Upload Design <ion-icon name="image-outline"></ion-icon></div>
             </div>
         </div>
     </div>
 
     <div class="toolbelt">
-        <ion-icon name="image-outline" class="tool-icon" onclick="sendQuickMsg('How do I upload my design?')"></ion-icon>
+        <input type="file" id="fileInput" style="display: none;" accept="image/*" onchange="handleFileUpload(event)">
+        <ion-icon name="image-outline" class="tool-icon" onclick="document.getElementById('fileInput').click()"></ion-icon>
         <ion-icon name="card-outline" class="tool-icon" onclick="sendQuickMsg('Send account details')"></ion-icon>
         <ion-icon name="help-circle-outline" class="tool-icon" onclick="sendQuickMsg('Help')"></ion-icon>
     </div>
 
     <div class="input-bar">
-        <input type="text" id="userInput" placeholder="Ask anything..." autocomplete="off">
-        <button class="send-btn" id="sendBtn" onclick="sendMessage()"><ion-icon name="send"></ion-icon></button>
+        <input type="text" id="userInput" placeholder="Type a message..." autocomplete="off">
+        <button class="send-btn" onclick="sendMessage()"><ion-icon name="send"></ion-icon></button>
     </div>
 </div>
 
 <script>
-// 1. Scroll to the latest message
+// --- CHAT LOGIC ---
+
 function scrollToBottom() {
     const chatBox = document.getElementById('chat-box');
     if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// 2. Load History on Page Load
 window.onload = () => {
     const chatBox = document.getElementById('chat-box');
     const savedChat = localStorage.getItem('eliteChatHistory');
@@ -159,7 +161,6 @@ window.onload = () => {
     }
 };
 
-// 3. UI Controls
 function toggleMenu() {
     document.getElementById('sidebar').classList.toggle('active');
     document.getElementById('overlay').classList.toggle('active');
@@ -171,13 +172,58 @@ function sendQuickMsg(text) {
 }
 
 function clearChat() {
-    if(confirm("Clear conversation history?")) {
+    if(confirm("Start a new conversation?")) {
         localStorage.removeItem('eliteChatHistory');
         location.reload();
     }
 }
 
-// 4. Send Message Logic
+// --- FILE UPLOAD LOGIC ---
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    const chatBox = document.getElementById('chat-box');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Preview Image in Chat
+            const imgHtml = `
+                <div class="msg user-msg">
+                    <p style="margin-bottom:5px; font-size:12px;">Attached Design:</p>
+                    <img src="${e.target.result}" class="chat-img">
+                </div>`;
+            chatBox.innerHTML += imgHtml;
+            scrollToBottom();
+
+            // Notify AI about the upload
+            sendImageNotification(file.name);
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+async function sendImageNotification(fileName) {
+    const chatBox = document.getElementById('chat-box');
+    const loadingId = "load-" + Date.now();
+    chatBox.innerHTML += `<div class="msg bot-msg" id="${loadingId}">...</div>`;
+    scrollToBottom();
+
+    try {
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: `I have uploaded an image for a gift: ${fileName}` })
+        });
+        const data = await response.json();
+        document.getElementById(loadingId).innerText = data.response;
+        localStorage.setItem('eliteChatHistory', chatBox.innerHTML);
+    } catch (error) {
+        document.getElementById(loadingId).innerText = "Image received. Please tell me which item you'd like this printed on.";
+    }
+    scrollToBottom();
+}
+
+// --- MESSAGE SENDING ---
 async function sendMessage() {
     const input = document.getElementById('userInput');
     const chatBox = document.getElementById('chat-box');
@@ -186,12 +232,10 @@ async function sendMessage() {
     const userText = input.value.trim();
     if (!userText) return;
 
-    // Display User Message
     chatBox.innerHTML += `<div class="msg user-msg">${userText}</div>`;
     input.value = '';
     scrollToBottom();
 
-    // Display Loading State
     const loadingId = "load-" + Date.now();
     chatBox.innerHTML += `<div class="msg bot-msg" id="${loadingId}">...</div>`;
     scrollToBottom();
@@ -203,11 +247,7 @@ async function sendMessage() {
             body: JSON.stringify({ message: userText })
         });
         const data = await response.json();
-        
-        // Update Bot Message
         document.getElementById(loadingId).innerText = data.response;
-        
-        // Save to History
         localStorage.setItem('eliteChatHistory', chatBox.innerHTML);
     } catch (error) {
         document.getElementById(loadingId).innerText = "Connection lost. Please check your data.";
@@ -215,21 +255,19 @@ async function sendMessage() {
     scrollToBottom();
 }
 
-// 5. DISABLE ENTER KEY SENDING
+// --- KEYBOARD SAFETY ---
 document.addEventListener('DOMContentLoaded', () => {
     const userInput = document.getElementById('userInput');
     if (userInput) {
         userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                e.preventDefault(); // This stops the Enter key from sending OR refreshing the page
+                e.preventDefault(); 
                 return false;
             }
         });
     }
 });
 </script>
+
 </body>
 </html>
-
-
-
