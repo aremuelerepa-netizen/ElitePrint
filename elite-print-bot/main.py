@@ -8,6 +8,7 @@ import uvicorn
 
 app = FastAPI()
 
+# Enable CORS so your frontend can talk to your backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,8 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# NEW FIX: Use trust_env=False instead of proxies=None
-# This tells httpx to ignore the proxy settings on Render's servers
+# FIX: Force httpx to ignore Render's internal proxy settings
 http_client = httpx.Client(trust_env=False)
 
 client = Groq(
@@ -35,23 +35,29 @@ DIRECTIVE: Be professional. Encourage users to upload designs via the toolbelt.
 
 @app.get("/")
 async def read_index():
-    # Make sure index.html is in the same folder as main.py
+    # Serves your index.html file to the browser
     return FileResponse("index.html")
 
 @app.post("/chat")
 async def chat(request: Request):
-    data = await request.json()
-    user_message = data.get("message")
-    
-    completion = client.chat.completions.create(
-        model="llama3-70b-8192",
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_message}
-        ]
-    )
-    return {"response": completion.choices[0].message.content}
+    try:
+        data = await request.json()
+        user_message = data.get("message")
+        
+        # UPDATED MODEL: llama-3.3-70b-versatile replaces the decommissioned version
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_message}
+            ]
+        )
+        return {"response": completion.choices[0].message.content}
+    except Exception as e:
+        print(f"Error: {e}")
+        return {"response": "I'm having trouble processing that right now. Please try again in a moment."}
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
+    # Render uses the PORT environment variable to know where to listen
+    port = int(os.environ.get("PORT", 10000))
     uvicorn.run(app, host="0.0.0.0", port=port)
