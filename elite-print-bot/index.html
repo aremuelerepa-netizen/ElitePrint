@@ -21,19 +21,13 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #1a1a1a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100dvh;
-            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+            height: 100dvh; overflow: hidden;
         }
 
         .chat-container {
-            width: 100%; 
-            height: 100dvh; 
-            background: var(--light-bg);
-            display: flex; flex-direction: column;
-            position: relative; overflow: hidden;
+            width: 100%; height: 100dvh; background: var(--light-bg);
+            display: flex; flex-direction: column; position: relative; overflow: hidden;
         }
 
         @media (min-width: 500px) {
@@ -43,22 +37,21 @@
         /* --- SIDEBAR --- */
         .sidebar {
             position: absolute; left: -260px; top: 0; width: 260px; height: 100%;
-            background: var(--sidebar-bg); color: white; z-index: 100;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 20px;
-            display: flex; flex-direction: column;
+            background: var(--sidebar-bg); color: white; z-index: 1000;
+            transition: 0.3s ease; padding: 20px; display: flex; flex-direction: column;
         }
         .sidebar.active { left: 0; }
         .sidebar-header { color: var(--gold); font-weight: 700; font-size: 18px; margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; cursor: pointer; margin-bottom: 5px; transition: 0.2s; font-size: 14px; }
+        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; cursor: pointer; margin-bottom: 5px; font-size: 14px; }
         .sidebar-item:hover { background: #222; color: var(--gold); }
-        .overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 90; }
+        .overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 900; }
         .overlay.active { display: block; }
 
         /* --- HEADER --- */
         .chat-header {
             background: var(--black); padding: 15px 20px;
             display: flex; align-items: center; border-bottom: 2px solid var(--gold);
-            color: white; z-index: 10;
+            color: white; z-index: 100;
         }
         .menu-btn { font-size: 28px; color: var(--gold); cursor: pointer; margin-right: 15px; }
         .header-info .name { font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 6px; }
@@ -68,7 +61,7 @@
         .msg { max-width: 85%; padding: 12px 16px; font-size: 14px; line-height: 1.5; border-radius: 18px; word-wrap: break-word; }
         .bot-msg { background: var(--bot-bubble); align-self: flex-start; border-bottom-left-radius: 4px; color: #333; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .user-msg { background: var(--user-bubble); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .chat-img { max-width: 100%; border-radius: 10px; margin-top: 5px; display: block; }
+        .chat-img { max-width: 100%; border-radius: 10px; margin-top: 8px; display: block; }
 
         .action-container { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
         .action-btn {
@@ -77,29 +70,15 @@
             display: flex; justify-content: space-between; align-items: center; cursor: pointer;
         }
 
-        /* --- TOOLBELT --- */
-        .toolbelt { display: flex; justify-content: space-around; padding: 10px 0; background: white; border-top: 1px solid #eee; }
-        .tool-icon { font-size: 24px; color: #555; cursor: pointer; }
-
-        /* --- INPUT BAR --- */
+        /* --- INPUT & TOOLS --- */
+        .toolbelt { display: flex; justify-content: space-around; padding: 10px 0; background: white; border-top: 1px solid #eee; position: relative; z-index: 50; }
+        .tool-icon { font-size: 24px; color: #555; cursor: pointer; padding: 5px; }
+        
         .input-bar { 
-            padding: 10px 15px 30px; 
-            background: white; display: flex; gap: 10px; align-items: center; 
-            border-top: 1px solid #ddd;
-            position: relative;
-            z-index: 10;
+            padding: 10px 15px 30px; background: white; display: flex; gap: 10px; align-items: center; border-top: 1px solid #ddd; position: relative; z-index: 50;
         }
-        input[type="text"] { 
-            flex: 1; background: #f1f1f1; border: 1px solid #ddd; 
-            padding: 12px 15px; border-radius: 20px; outline: none; 
-            font-size: 16px;
-        }
-        .send-btn { 
-            background: var(--black); color: var(--gold); 
-            width: 45px; height: 45px; border-radius: 50%; 
-            border: none; cursor: pointer; display: flex; 
-            align-items: center; justify-content: center; flex-shrink: 0; 
-        }
+        input[type="text"] { flex: 1; background: #f1f1f1; border: 1px solid #ddd; padding: 12px 15px; border-radius: 20px; outline: none; font-size: 16px; }
+        .send-btn { background: var(--black); color: var(--gold); width: 45px; height: 45px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     </style>
 </head>
 <body>
@@ -108,8 +87,8 @@
     <div id="sidebar" class="sidebar">
         <div class="sidebar-header">Elite Print Studio</div>
         <div class="sidebar-item" onclick="clearChat()"><ion-icon name="trash-outline"></ion-icon> Clear History</div>
-        <div class="sidebar-item" onclick="window.open('https://wa.me/c/2348088060408')"><ion-icon name="briefcase-outline"></ion-icon> Catalog</div>
-        <div class="sidebar-item" onclick="sendQuickMsg('Where is your office?')"><ion-icon name="location-outline"></ion-icon> Location</div>
+        <div class="sidebar-item" onclick="window.open('https://wa.me/c/2348088060408')"><ion-icon name="briefcase-outline"></ion-icon> View Catalog</div>
+        <div class="sidebar-item" onclick="openWhatsApp('Hello, I want to talk to a manager.')"><ion-icon name="logo-whatsapp"></ion-icon> Contact WhatsApp</div>
     </div>
     <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
 
@@ -123,19 +102,19 @@
 
     <div class="chat-history" id="chat-box">
         <div class="msg bot-msg">
-            Hello! I'm the Elite Print Consultant. How can I help with your printing or gifting needs today?
+            Hello! Welcome to Elite Print Studio. How can I help with your printing or gifting needs today?
             <div class="action-container">
-                <div class="action-btn" onclick="sendQuickMsg('Show me the price list')">View Prices <ion-icon name="pricetag-outline"></ion-icon></div>
-                <div class="action-btn" onclick="document.getElementById('fileInput').click()">Upload Design <ion-icon name="image-outline"></ion-icon></div>
+                <div class="action-btn" onclick="sendQuickMsg('Show me the price list')">View Price List <ion-icon name="pricetag-outline"></ion-icon></div>
+                <div class="action-btn" onclick="triggerUpload()">Upload Design <ion-icon name="image-outline"></ion-icon></div>
             </div>
         </div>
     </div>
 
     <div class="toolbelt">
         <input type="file" id="fileInput" style="display: none;" accept="image/*" onchange="handleFileUpload(event)">
-        <ion-icon name="image-outline" class="tool-icon" onclick="document.getElementById('fileInput').click()"></ion-icon>
-        <ion-icon name="card-outline" class="tool-icon" onclick="sendQuickMsg('Send account details')"></ion-icon>
-        <ion-icon name="help-circle-outline" class="tool-icon" onclick="sendQuickMsg('Help')"></ion-icon>
+        <ion-icon name="image-outline" class="tool-icon" onclick="triggerUpload()"></ion-icon>
+        <ion-icon name="card-outline" class="tool-icon" onclick="sendQuickMsg('I want to pay')"></ion-icon>
+        <ion-icon name="logo-whatsapp" class="tool-icon" onclick="openWhatsApp()"></ion-icon>
     </div>
 
     <div class="input-bar">
@@ -145,15 +124,13 @@
 </div>
 
 <script>
-// --- CHAT LOGIC ---
+const chatBox = document.getElementById('chat-box');
 
 function scrollToBottom() {
-    const chatBox = document.getElementById('chat-box');
     if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 window.onload = () => {
-    const chatBox = document.getElementById('chat-box');
     const savedChat = localStorage.getItem('eliteChatHistory');
     if (savedChat && chatBox) {
         chatBox.innerHTML = savedChat;
@@ -172,102 +149,80 @@ function sendQuickMsg(text) {
 }
 
 function clearChat() {
-    if(confirm("Start a new conversation?")) {
+    if(confirm("Clear chat?")) {
         localStorage.removeItem('eliteChatHistory');
         location.reload();
     }
 }
 
-// --- FILE UPLOAD LOGIC ---
+function openWhatsApp(msg) {
+    const phone = "2348088060408";
+    const text = encodeURIComponent(msg || "Hello Elite Studio, I have a print order.");
+    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+}
+
+// --- UPLOAD ---
+function triggerUpload() { document.getElementById('fileInput').click(); }
+
 function handleFileUpload(event) {
     const file = event.target.files[0];
-    const chatBox = document.getElementById('chat-box');
-    
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            // Preview Image in Chat
-            const imgHtml = `
-                <div class="msg user-msg">
-                    <p style="margin-bottom:5px; font-size:12px;">Attached Design:</p>
-                    <img src="${e.target.result}" class="chat-img">
-                </div>`;
-            chatBox.innerHTML += imgHtml;
-            scrollToBottom();
-
-            // Notify AI about the upload
-            sendImageNotification(file.name);
-        };
-        reader.readAsDataURL(file);
-    }
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        chatBox.innerHTML += `<div class="msg user-msg"><span style="font-size:11px;">Attached:</span><img src="${e.target.result}" class="chat-img"></div>`;
+        scrollToBottom();
+        sendImageNotification(file.name);
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
 }
 
-async function sendImageNotification(fileName) {
-    const chatBox = document.getElementById('chat-box');
-    const loadingId = "load-" + Date.now();
-    chatBox.innerHTML += `<div class="msg bot-msg" id="${loadingId}">...</div>`;
+async function sendImageNotification(name) {
+    const id = "load-" + Date.now();
+    chatBox.innerHTML += `<div class="msg bot-msg" id="${id}">...</div>`;
     scrollToBottom();
-
     try {
-        const response = await fetch('/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: `I have uploaded an image for a gift: ${fileName}` })
-        });
-        const data = await response.json();
-        document.getElementById(loadingId).innerText = data.response;
-        localStorage.setItem('eliteChatHistory', chatBox.innerHTML);
-    } catch (error) {
-        document.getElementById(loadingId).innerText = "Image received. Please tell me which item you'd like this printed on.";
-    }
-    scrollToBottom();
+        const res = await fetch('/chat', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({message: "I uploaded an image: " + name}) });
+        const data = await res.json();
+        renderBotResponse(id, data.response);
+    } catch { document.getElementById(id).innerText = "Received! What are we printing this on?"; }
 }
 
-// --- MESSAGE SENDING ---
+// --- SENDING ---
 async function sendMessage() {
     const input = document.getElementById('userInput');
-    const chatBox = document.getElementById('chat-box');
-    if (!input || !chatBox) return;
+    const text = input.value.trim();
+    if (!text) return;
 
-    const userText = input.value.trim();
-    if (!userText) return;
-
-    chatBox.innerHTML += `<div class="msg user-msg">${userText}</div>`;
+    chatBox.innerHTML += `<div class="msg user-msg">${text}</div>`;
     input.value = '';
     scrollToBottom();
 
-    const loadingId = "load-" + Date.now();
-    chatBox.innerHTML += `<div class="msg bot-msg" id="${loadingId}">...</div>`;
+    const id = "load-" + Date.now();
+    chatBox.innerHTML += `<div class="msg bot-msg" id="${id}">...</div>`;
     scrollToBottom();
 
     try {
-        const response = await fetch('/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: userText })
-        });
-        const data = await response.json();
-        document.getElementById(loadingId).innerText = data.response;
-        localStorage.setItem('eliteChatHistory', chatBox.innerHTML);
-    } catch (error) {
-        document.getElementById(loadingId).innerText = "Connection lost. Please check your data.";
+        const res = await fetch('/chat', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({message: text}) });
+        const data = await res.json();
+        renderBotResponse(id, data.response);
+    } catch { document.getElementById(id).innerText = "Connection lost."; }
+}
+
+function renderBotResponse(id, text) {
+    const el = document.getElementById(id);
+    let html = text;
+    if (text.includes("8088060408") || text.toLowerCase().includes("pay")) {
+        html += `<div class="action-container"><div class="action-btn" style="background:#25D366; color:white; border:none;" onclick="openWhatsApp('Here is my proof of payment and design.')">Send Proof to WhatsApp <ion-icon name="logo-whatsapp"></ion-icon></div></div>`;
     }
+    el.innerHTML = html;
+    localStorage.setItem('eliteChatHistory', chatBox.innerHTML);
     scrollToBottom();
 }
 
-// --- KEYBOARD SAFETY ---
 document.addEventListener('DOMContentLoaded', () => {
-    const userInput = document.getElementById('userInput');
-    if (userInput) {
-        userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault(); 
-                return false;
-            }
-        });
-    }
+    document.getElementById('userInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); });
 });
 </script>
-
 </body>
 </html>
