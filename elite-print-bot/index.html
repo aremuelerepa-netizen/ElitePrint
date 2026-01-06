@@ -143,20 +143,23 @@
 </div>
 
 <script>
-// --- ALL YOUR JAVASCRIPT GOES HERE ---
+// 1. Scroll to the latest message
 function scrollToBottom() {
     const chatBox = document.getElementById('chat-box');
     if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+// 2. Load History on Page Load
 window.onload = () => {
+    const chatBox = document.getElementById('chat-box');
     const savedChat = localStorage.getItem('eliteChatHistory');
-    if (savedChat) {
-        document.getElementById('chat-box').innerHTML = savedChat;
+    if (savedChat && chatBox) {
+        chatBox.innerHTML = savedChat;
         scrollToBottom();
     }
 };
 
+// 3. UI Controls
 function toggleMenu() {
     document.getElementById('sidebar').classList.toggle('active');
     document.getElementById('overlay').classList.toggle('active');
@@ -167,6 +170,14 @@ function sendQuickMsg(text) {
     sendMessage();
 }
 
+function clearChat() {
+    if(confirm("Clear conversation history?")) {
+        localStorage.removeItem('eliteChatHistory');
+        location.reload();
+    }
+}
+
+// 4. Send Message Logic
 async function sendMessage() {
     const input = document.getElementById('userInput');
     const chatBox = document.getElementById('chat-box');
@@ -175,12 +186,14 @@ async function sendMessage() {
     const userText = input.value.trim();
     if (!userText) return;
 
+    // Display User Message
     chatBox.innerHTML += `<div class="msg user-msg">${userText}</div>`;
     input.value = '';
     scrollToBottom();
 
+    // Display Loading State
     const loadingId = "load-" + Date.now();
-    chatBox.innerHTML += `<div class="msg bot-msg" id="${loadingId}">Elite AI is typing...</div>`;
+    chatBox.innerHTML += `<div class="msg bot-msg" id="${loadingId}">...</div>`;
     scrollToBottom();
 
     try {
@@ -190,7 +203,11 @@ async function sendMessage() {
             body: JSON.stringify({ message: userText })
         });
         const data = await response.json();
+        
+        // Update Bot Message
         document.getElementById(loadingId).innerText = data.response;
+        
+        // Save to History
         localStorage.setItem('eliteChatHistory', chatBox.innerHTML);
     } catch (error) {
         document.getElementById(loadingId).innerText = "Connection lost. Please check your data.";
@@ -198,17 +215,21 @@ async function sendMessage() {
     scrollToBottom();
 }
 
+// 5. DISABLE ENTER KEY SENDING
 document.addEventListener('DOMContentLoaded', () => {
     const userInput = document.getElementById('userInput');
     if (userInput) {
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // This stops the Enter key from sending OR refreshing the page
+                return false;
+            }
         });
     }
 });
 </script>
-
 </body>
 </html>
+
 
 
