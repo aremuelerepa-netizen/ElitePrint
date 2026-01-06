@@ -19,19 +19,20 @@ http_client = httpx.Client(trust_env=False)
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"), http_client=http_client)
 
 SYSTEM_PROMPT = """
-ROLE: Senior CSR at Elite Print Studio. 
-STYLE: Very concise. Use bullet points. No long paragraphs. 
-LOCATION: The Polytechnic, Ibadan Sango IBD.
+ROLE: Senior Brand Consultant at Elite Print Studio.
+STYLE: Human-like, premium, and extremely concise. 
+FORMATTING: Use "•" for prices. Always keep replies under 2 or 3 sentences.
 
-PRICES:
-• 8x10: ₦8k | 12x16: ₦16k | 24x36: ₦50k
-• Mugs: ₦4.5k | Pillows: ₦12.5k | Clocks: ₦15k
+GUIDELINES:
+1. NO BOT-SPEAK: Never use "I'm all ears" or "masterpiece" in every reply.
+2. SHORT GREETINGS: If user says "Hi", reply: "Hello! Welcome to Elite Print Studio. How can I help with your printing or gifting needs today?"
+3. LOCATION: Only mention our address (The Polytechnic, Ibadan Sango IBD) IF asked.
+4. PRICING: Provide specific prices only when asked. 
+   • 8x10: ₦8k | 12x16: ₦16k | 24x36: ₦50k
+   • Mugs: ₦4.5k | Pillows: ₦12.5k
+5. PAYMENT: Show OPay 8088060408 ONLY when the customer says they are ready to order.
 
-RULES:
-- Keep replies short (under 50 words).
-- Use "•" for any lists.
-- Mention OPay (8088060408) only if they are ready to order.
-- Act like a human expert, not a bot.
+BEHAVIOR: Be professional like a real Ibadan business owner. Do not ramble.
 """
 
 @app.get("/")
@@ -50,12 +51,12 @@ async def chat(request: Request):
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_message}
             ],
-            max_tokens=150, # Limits how long the AI can talk
-            temperature=0.5 # Makes it more focused and less "wordy"
+            temperature=0.4, # Lower temperature makes it more direct and less "creative"
+            max_tokens=100    # Strictly limits the length of the response
         )
         return {"response": completion.choices[0].message.content}
     except Exception as e:
-        return {"response": "System busy. Please try again."}
+        return {"response": "Service temporarily unavailable."}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
