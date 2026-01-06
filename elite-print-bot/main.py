@@ -16,8 +16,15 @@ app.add_middleware(
 )
 
 # Render will provide the API Key via Environment Variables
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+import httpx
 
+# We manually create a client without proxies to avoid the Render bug
+http_client = httpx.Client(proxies=None)
+
+client = Groq(
+    api_key=os.environ.get("GROQ_API_KEY"),
+    http_client=http_client
+)
 # Your Master Instruction Manual
 SYSTEM_PROMPT = """
 You are the Elite Print Studio AI Concierge. 
@@ -50,4 +57,5 @@ async def chat(request: Request):
 if __name__ == "__main__":
     # Render uses the PORT environment variable
     port = int(os.environ.get("PORT", 8000))
+
     uvicorn.run(app, host="0.0.0.0", port=port)
