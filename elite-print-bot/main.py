@@ -14,7 +14,14 @@ load_dotenv()
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
-templates = Jinja2Templates(directory="templates")
+
+# 1. Get the absolute path of the directory containing main.py
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# 2. Point to the folder where your HTML files live. 
+# If they are in the root next to main.py, use BASE_DIR.
+# If they are in a folder called 'frontend', use os.path.join(BASE_DIR, "frontend")
+templates = Jinja2Templates(directory=BASE_DIR)
 
 # ── Clients ──────────────────────────────────────────────
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
