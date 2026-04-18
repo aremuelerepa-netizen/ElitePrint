@@ -1,1 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin — Elite Print Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <style>
+        :root{--gold:#F5C842;--gold2:#E8A800;--blue:#00B4FF;--blue2:#0090D4;--black:#0A0A0A;--dark:#111114;--surface:#18181C;--surface2:#222228;--border:#2A2A32;--text:#F0EEF8;--text-muted:#7A7890;--green:#00D068;--red:#FF4757;--orange:#FF8C42;}
+        *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+        body{font-family:'Space Grotesk',sans-serif;background:#070709;display:flex;justify-content:center;align-items:center;height:100dvh;overflow:hidden;}
+        body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 40% at 20% 20%,rgba(0,180,255,0.06) 0%,transparent 70%);}
+        .app{width:100%;height:100dvh;background:var(--dark);display:flex;flex-direction:column;overflow:hidden;}
+        @media(min-width:520px){.app{width:420px;height:93vh;border-radius:26px;box-shadow:0 0 0 1px rgba(255,255,255,0.05),0 30px 80px rgba(0,0,0,0.9);}}
 
+        /* LOGIN */
+        .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:30px;background:var(--dark);}
+        .login-icon{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#0d1a2a,#1a1a1a);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:22px;box-shadow:0 0 30px rgba(245,200,66,0.15);animation:loginPulse 3s ease-in-out infinite;}
+        @keyframes loginPulse{0%,100%{box-shadow:0 0 30px rgba(245,200,66,0.15)}50%{box-shadow:0 0 50px rgba(245,200,66,0.3)}}
+        .login-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--text);margin-bottom:6px;text-align:center;}
+        .login-sub{font-size:13px;color:var(--text-muted);margin-bottom:36px;text-align:center;}
+        .login-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px 18px;color:var(--text);font-size:16px;outline:none;font-family:'Space Grotesk',sans-serif;transition:border-color 0.2s;margin-bottom:14px;letter-spacing:3px;}
+        .login-input:focus{border-color:var(--gold);}
+        .login-input.error{border-color:var(--red);animation:shake 0.4s ease;}
+        @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+        .login-btn{width:100%;padding:15px;border-radius:14px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--black);font-size:15px;font-weight:800;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;}
+        .login-btn:active{opacity:0.85;}
+        .login-err{color:var(--red);font-size:13px;margin-top:10px;text-align:center;display:none;}
+
+        /* MAIN */
+        .admin-main{display:none;flex-direction:column;height:100%;}
+        .admin-main.show{display:flex;}
+
+        /* HEADER */
+        .header{display:flex;align-items:center;gap:10px;padding:13px 14px;background:var(--black);border-bottom:1px solid var(--border);flex-shrink:0;position:relative;}
+        .header::after{content:'';position:absolute;bottom:-1px;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),var(--blue),transparent);opacity:0.4;}
+        .h-logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--gold);flex:1;}
+        .notif-btn{position:relative;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:20px;cursor:pointer;}
+        .notif-dot{position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--red);display:none;}
+        .notif-dot.show{display:block;}
+        .logout-btn{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:20px;cursor:pointer;transition:all 0.2s;}
+        .logout-btn:hover{background:var(--surface);color:var(--red);}
+
+        /* TABS */
+        .admin-tabs{display:flex;background:var(--black);border-bottom:1px solid var(--border);flex-shrink:0;}
+        .atab{flex:1;padding:11px 5px;text-align:center;font-size:10px;font-weight:700;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;}
+        .atab ion-icon{display:block;font-size:20px;margin:0 auto 2px;}
+        .atab.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+        /* TAB CONTENT */
+        .tab-content{flex:1;overflow-y:auto;padding:14px;}
+        .tab-content::-webkit-scrollbar{width:2px;}
+        .tab-content::-webkit-scrollbar-thumb{background:var(--border);}
+        .tab-panel{display:none;}
+        .tab-panel.active{display:block;}
+
+        /* STATS */
+        .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;}
+        .stat-card{background:var(--surface);border-radius:14px;padding:13px;border:1px solid var(--border);position:relative;overflow:hidden;}
+        .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;border-radius:14px 14px 0 0;}
+        .stat-blue::before{background:var(--blue);}
+        .stat-gold::before{background:var(--gold);}
+        .stat-orange::before{background:var(--orange);}
+        .stat-green::before{background:var(--green);}
+        .stat-label{font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+        .stat-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--text);}
+        .stat-sub{font-size:10px;color:var(--text-muted);margin-top:2px;}
+
+        /* SECTION LABEL */
+        .sec-label{font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+
+        /* FILTER CHIPS */
+        .filter-row{display:flex;gap:7px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;}
+        .filter-row::-webkit-scrollbar{display:none;}
+        .fchip{padding:5px 12px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text-muted);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+        .fchip.active{background:var(--gold);color:var(--black);border-color:var(--gold);}
+
+        /* ORDER CARDS */
+        .order-card{background:var(--surface);border-radius:14px;padding:13px;margin-bottom:9px;border:1px solid var(--border);animation:fadeIn 0.3s ease;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+        .oc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+        .oc-id{font-size:12px;font-weight:800;color:var(--gold);font-family:'Courier New',monospace;}
+        .oc-time{font-size:10px;color:var(--text-muted);}
+        .oc-customer{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;}
+        .oc-phone{font-size:12px;color:var(--text-muted);margin-bottom:6px;}
+        .oc-items{font-size:12px;color:var(--text-muted);margin-bottom:8px;}
+        /* Mockup + Proof side by side */
+        .oc-media{display:flex;gap:8px;margin-bottom:10px;}
+        .oc-img{flex:1;border-radius:10px;overflow:hidden;background:var(--surface2);aspect-ratio:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:11px;cursor:pointer;}
+        .oc-img img{width:100%;height:100%;object-fit:cover;}
+        .oc-img-label{font-size:10px;color:var(--text-muted);text-align:center;margin-top:4px;}
+        .oc-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+        .badge{padding:3px 9px;border-radius:8px;font-size:10px;font-weight:800;text-transform:uppercase;}
+        .b-pending{background:rgba(255,140,66,0.15);color:var(--orange);}
+        .b-confirmed{background:rgba(0,208,104,0.15);color:var(--green);}
+        .b-rejected{background:rgba(255,71,87,0.15);color:var(--red);}
+        .b-production{background:rgba(0,180,255,0.15);color:var(--blue);}
+        .b-done{background:rgba(0,208,104,0.2);color:var(--green);}
+        .b-ai{background:rgba(245,200,66,0.12);color:var(--gold);}
+        .b-catalog{background:rgba(0,180,255,0.12);color:var(--blue);}
+        .oc-amount{font-size:15px;font-weight:800;color:var(--gold);}
+        .oc-balance{font-size:11px;color:var(--text-muted);}
+        .oc-actions{display:flex;gap:7px;flex-wrap:wrap;}
+        .oa-btn{flex:1;padding:9px 8px;border-radius:10px;font-size:11px;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;min-width:70px;transition:all 0.2s;font-family:'Space Grotesk',sans-serif;}
+        .btn-confirm{background:rgba(0,208,104,0.12);color:var(--green);border:1px solid rgba(0,208,104,0.25);}
+        .btn-reject{background:rgba(255,71,87,0.12);color:var(--red);border:1px solid rgba(255,71,87,0.25);}
+        .btn-prod{background:rgba(0,180,255,0.12);color:var(--blue);border:1px solid rgba(0,180,255,0.25);}
+        .btn-done{background:rgba(0,208,104,0.18);color:var(--green);border:1px solid rgba(0,208,104,0.35);}
+        .btn-wa{background:rgba(37,211,102,0.12);color:#25D366;border:1px solid rgba(37,211,102,0.25);}
+
+        /* PRODUCTS TAB */
+        .add-prod-btn{width:100%;padding:13px;border-radius:14px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--black);font-size:13px;font-weight:800;border:none;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Space Grotesk',sans-serif;}
+        .prod-card{background:var(--surface);border-radius:12px;padding:12px;margin-bottom:8px;border:1px solid var(--border);display:flex;gap:11px;align-items:center;}
+        .prod-thumb{width:52px;height:52px;border-radius:10px;object-fit:cover;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;overflow:hidden;}
+        .prod-thumb img{width:100%;height:100%;object-fit:cover;border-radius:10px;}
+        .prod-info{flex:1;min-width:0;}
+        .prod-name{font-size:13px;font-weight:700;color:var(--text);}
+        .prod-price{font-size:13px;color:var(--gold);font-weight:700;}
+        .prod-cat{font-size:10px;color:var(--text-muted);}
+        .prod-btns{display:flex;gap:6px;}
+        .pb{width:32px;height:32px;border-radius:9px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.2s;}
+        .pb-edit{background:rgba(0,180,255,0.12);color:var(--blue);}
+        .pb-del{background:rgba(255,71,87,0.12);color:var(--red);}
+        .inactive-badge{font-size:9px;background:rgba(255,71,87,0.12);color:var(--red);padding:2px 6px;border-radius:5px;display:inline-block;}
+
+        /* SETTINGS */
+        .settings-card{background:var(--surface);border-radius:14px;padding:15px;margin-bottom:10px;border:1px solid var(--border);}
+        .settings-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:13px;display:flex;align-items:center;gap:6px;}
+        .s-field{margin-bottom:12px;}
+        .s-label{font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block;}
+        .s-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:11px;padding:11px 13px;color:var(--text);font-size:13px;outline:none;font-family:'Space Grotesk',sans-serif;transition:border-color 0.2s;}
+        .s-input:focus{border-color:var(--gold);}
+        .save-btn{width:100%;padding:12px;border-radius:12px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--black);font-size:13px;font-weight:800;border:none;cursor:pointer;margin-top:10px;font-family:'Space Grotesk',sans-serif;}
+        .toggle-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+        .toggle{width:46px;height:25px;border-radius:13px;background:#333;cursor:pointer;position:relative;transition:background 0.3s;flex-shrink:0;}
+        .toggle.on{background:var(--gold);}
+        .toggle::after{content:'';position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:white;transition:transform 0.3s;}
+        .toggle.on::after{transform:translateX(21px);}
+        /* Logo upload */
+        .logo-upload{border:2px dashed var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;color:var(--text-muted);}
+        .logo-upload:hover{border-color:var(--gold);color:var(--gold);}
+        .logo-upload ion-icon{font-size:28px;display:block;margin:0 auto 6px;}
+        .logo-preview{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);margin:10px auto 0;display:none;display:block;}
+
+        /* MODAL */
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:2000;backdrop-filter:blur(5px);align-items:flex-end;justify-content:center;}
+        .modal-overlay.show{display:flex;}
+        .modal{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:420px;max-height:88vh;overflow-y:auto;animation:slideUp 0.3s ease;padding:20px 18px 36px;}
+        @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+        .modal-handle{width:40px;height:4px;background:#333;border-radius:2px;margin:0 auto 18px;}
+        .modal-title{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:var(--text);margin-bottom:16px;}
+        .m-field{margin-bottom:12px;}
+        .m-label{font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block;}
+        .m-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:11px;padding:11px 13px;color:var(--text);font-size:13px;outline:none;font-family:'Space Grotesk',sans-serif;transition:border-color 0.2s;}
+        .m-input:focus{border-color:var(--gold);}
+        .m-row{display:flex;gap:10px;}
+        .m-row .m-field{flex:1;}
+        .m-btn{width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--black);font-size:13px;font-weight:800;border:none;cursor:pointer;margin-bottom:8px;font-family:'Space Grotesk',sans-serif;}
+        .m-cancel{width:100%;padding:11px;border-radius:12px;background:var(--surface2);color:var(--text-muted);font-size:13px;font-weight:600;border:1px solid var(--border);cursor:pointer;font-family:'Space Grotesk',sans-serif;}
+        .img-upload-area{border:2px dashed var(--border);border-radius:11px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;color:var(--text-muted);margin-bottom:4px;}
+        .img-upload-area:hover{border-color:var(--gold);color:var(--gold);}
+        .img-preview{width:100%;border-radius:10px;max-height:140px;object-fit:cover;display:none;margin-top:8px;}
+        .toggle-field{display:flex;justify-content:space-between;align-items:center;}
+
+        /* EMPTY */
+        .empty{text-align:center;padding:40px 20px;color:var(--text-muted);}
+        .empty ion-icon{font-size:44px;color:#2a2a32;display:block;margin:0 auto 10px;}
+
+        /* NOTIFICATION SOUND */
+        input[type="file"]{display:none;}
+
+        /* IMAGE VIEWER */
+        .img-viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9000;align-items:center;justify-content:center;}
+        .img-viewer.show{display:flex;}
+        .img-viewer img{max-width:92%;max-height:90vh;border-radius:14px;}
+        .img-viewer-close{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.1);color:white;border:none;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;}
+    </style>
+</head>
+<body>
+<div class="app">
+
+    <!-- LOGIN -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-icon">🔐</div>
+        <div class="login-title">Admin Access</div>
+        <div class="login-sub">Elite Print Studio · Dashboard</div>
+        <input type="password" class="login-input" id="loginPass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="login-btn" onclick="doLogin()">Enter Dashboard</button>
+        <div class="login-err" id="loginErr">Incorrect password. Try again.</div>
+    </div>
+
+    <!-- ADMIN MAIN -->
+    <div class="admin-main" id="adminMain">
+        <div class="header">
+            <div class="h-logo">⚙ Admin Panel</div>
+            <div class="notif-btn" id="notifBtn"><ion-icon name="notifications-outline"></ion-icon><div class="notif-dot" id="notifDot"></div></div>
+            <div class="logout-btn" onclick="logout()" title="Logout"><ion-icon name="log-out-outline"></ion-icon></div>
+        </div>
+
+        <div class="admin-tabs">
+            <div class="atab active" onclick="switchTab('orders',this)"><ion-icon name="receipt-outline"></ion-icon>Orders</div>
+            <div class="atab" onclick="switchTab('products',this)"><ion-icon name="cube-outline"></ion-icon>Products</div>
+            <div class="atab" onclick="switchTab('settings',this)"><ion-icon name="settings-outline"></ion-icon>Settings</div>
+        </div>
+
+        <div class="tab-content" id="tabContent">
+
+            <!-- ORDERS TAB -->
+            <div class="tab-panel active" id="tab-orders">
+                <div class="stats-grid">
+                    <div class="stat-card stat-blue"><div class="stat-label">Total Orders</div><div class="stat-val" id="sTotal">-</div></div>
+                    <div class="stat-card stat-orange"><div class="stat-label">Pending</div><div class="stat-val" id="sPending" style="color:var(--orange)">-</div></div>
+                    <div class="stat-card stat-gold"><div class="stat-label">In Production</div><div class="stat-val" id="sProd" style="color:var(--blue)">-</div></div>
+                    <div class="stat-card stat-green"><div class="stat-label">Week Revenue</div><div class="stat-val" id="sRevenue" style="color:var(--green);font-size:18px">-</div></div>
+                </div>
+                <div class="filter-row">
+                    <div class="fchip active" onclick="filterOrders('all',this)">All</div>
+                    <div class="fchip" onclick="filterOrders('pending',this)">Pending Payment</div>
+                    <div class="fchip" onclick="filterOrders('confirmed',this)">Confirmed</div>
+                    <div class="fchip" onclick="filterOrders('in_production',this)">In Production</div>
+                    <div class="fchip" onclick="filterOrders('done',this)">Done</div>
+                </div>
+                <div id="ordersList"></div>
+            </div>
+
+            <!-- PRODUCTS TAB -->
+            <div class="tab-panel" id="tab-products">
+                <button class="add-prod-btn" onclick="openProdModal()"><ion-icon name="add-circle-outline"></ion-icon> Add New Product</button>
+                <div id="productsList"></div>
+            </div>
+
+            <!-- SETTINGS TAB -->
+            <div class="tab-panel" id="tab-settings">
+
+                <div class="settings-card">
+                    <div class="settings-title">🖼️ Company Logo</div>
+                    <div style="text-align:center;">
+                        <img id="logoPreview" src="" alt="Logo" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);display:none;margin:0 auto 12px;">
+                        <div class="logo-upload" onclick="document.getElementById('logoFile').click()">
+                            <ion-icon name="cloud-upload-outline"></ion-icon>
+                            <p style="font-size:13px;font-weight:600;" id="logoUploadLabel">Upload Company Logo</p>
+                            <p style="font-size:11px;margin-top:3px;">Shows on all pages</p>
+                        </div>
+                        <input type="file" id="logoFile" accept="image/*" onchange="uploadLogo(event)">
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <div class="settings-title">🔥 Promo Banner</div>
+                    <div class="s-field"><label class="s-label">Promo Text</label><input type="text" class="s-input" id="promoText" placeholder="e.g. 20% off all mugs today!"></div>
+                    <div class="toggle-row"><span style="font-size:13px;color:var(--text);">Show banner on site</span><div class="toggle" id="promoToggle" onclick="this.classList.toggle('on')"></div></div>
+                    <button class="save-btn" onclick="savePromo()">Save Promo</button>
+                </div>
+
+                <div class="settings-card">
+                    <div class="settings-title">💳 Payment Details</div>
+                    <div class="s-field"><label class="s-label">Bank Name</label><input type="text" class="s-input" id="bankName" placeholder="OPay"></div>
+                    <div class="s-field"><label class="s-label">Account Number</label><input type="text" class="s-input" id="opayNum" placeholder="8088060408"></div>
+                    <div class="s-field"><label class="s-label">Account Name</label><input type="text" class="s-input" id="accName" placeholder="Elite Print Studio"></div>
+                    <div class="s-field"><label class="s-label">WhatsApp Number</label><input type="text" class="s-input" id="waNum" placeholder="2348088060408"></div>
+                    <div class="s-field"><label class="s-label">Business Address</label><input type="text" class="s-input" id="bizAddr" placeholder="The Polytechnic, Ibadan Sango IBD"></div>
+                    <button class="save-btn" onclick="saveSettings()">Save Settings</button>
+                </div>
+
+                <div class="settings-card">
+                    <div class="settings-title">🔑 Change Password</div>
+                    <div class="s-field"><label class="s-label">New Password</label><input type="password" class="s-input" id="newPass" placeholder="Enter new password"></div>
+                    <button class="save-btn" onclick="changePass()">Update Password</button>
+                </div>
+
+                <div style="height:30px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="prodModal">
+    <div class="modal">
+        <div class="modal-handle"></div>
+        <div class="modal-title" id="prodModalTitle">Add Product</div>
+        <input type="hidden" id="editProdId">
+        <div class="m-row">
+            <div class="m-field"><label class="m-label">Product Name</label><input type="text" class="m-input" id="pName" placeholder="e.g. Custom Mug"></div>
+            <div class="m-field"><label class="m-label">Price (₦)</label><input type="number" class="m-input" id="pPrice" placeholder="4500"></div>
+        </div>
+        <div class="m-field"><label class="m-label">Description</label><textarea class="m-input" id="pDesc" rows="2" placeholder="Brief description..."></textarea></div>
+        <div class="m-field"><label class="m-label">Category</label><select class="m-input" id="pCat" style="background:var(--surface2);"><option value="">Select category</option></select></div>
+        <div class="m-field">
+            <label class="m-label">Product Image</label>
+            <div class="img-upload-area" onclick="document.getElementById('prodImgFile').click()">
+                <ion-icon name="image-outline" style="font-size:26px;display:block;margin:0 auto 5px;"></ion-icon>
+                <span id="imgUploadLabel" style="font-size:12px;">Tap to upload product image</span>
+            </div>
+            <img class="img-preview" id="prodImgPreview" src="" alt="">
+            <input type="file" id="prodImgFile" accept="image/*" onchange="handleProdImg(event)">
+        </div>
+        <div class="m-row">
+            <div class="m-field"><label class="m-label">Sizes (comma separated)</label><input type="text" class="m-input" id="pSizes" placeholder="S, M, L, XL"></div>
+            <div class="m-field"><label class="m-label">Colors (hex, comma separated)</label><input type="text" class="m-input" id="pColors" placeholder="#fff, #000"></div>
+        </div>
+        <div class="toggle-field" style="margin-bottom:16px;">
+            <span style="font-size:13px;color:var(--text);">Customizable</span>
+            <div class="toggle on" id="pCustom" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="toggle-field" style="margin-bottom:16px;">
+            <span style="font-size:13px;color:var(--text);">Active (visible to customers)</span>
+            <div class="toggle on" id="pActive" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <button class="m-btn" onclick="saveProd()">Save Product</button>
+        <button class="m-cancel" onclick="closeProdModal()">Cancel</button>
+    </div>
+</div>
+
+<!-- IMAGE VIEWER -->
+<div class="img-viewer" id="imgViewer" onclick="closeViewer()">
+    <button class="img-viewer-close"><ion-icon name="close-outline"></ion-icon></button>
+    <img id="viewerImg" src="" alt="">
+</div>
+
+<script>
+let allOrders=[], allProducts=[], allCats=[], editingProdId=null, newProdImgFile=null, prevOrderCount=0;
+
+// ── AUTH ──
+async function doLogin(){
+    const pass=document.getElementById('loginPass').value;
+    if(!pass) return;
+    const res=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pass})});
+    const data=await res.json();
+    if(data.success){ sessionStorage.setItem('eps_admin','1'); showDashboard(); }
+    else{ document.getElementById('loginErr').style.display='block'; document.getElementById('loginPass').classList.add('error'); setTimeout(()=>document.getElementById('loginPass').classList.remove('error'),500); }
+}
+
+function logout(){ sessionStorage.removeItem('eps_admin'); document.getElementById('adminMain').classList.remove('show'); document.getElementById('loginScreen').style.display='flex'; document.getElementById('loginPass').value=''; }
+
+async function showDashboard(){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('adminMain').classList.add('show');
+    await Promise.all([loadStats(),loadOrders(),loadProducts(),loadSettings()]);
+    // Poll for new orders every 30s
+    setInterval(pollOrders,30000);
+}
+
+window.onload=()=>{ if(sessionStorage.getItem('eps_admin')==='1') showDashboard(); };
+
+// ── TABS ──
+function switchTab(name,el){
+    document.querySelectorAll('.atab').forEach(t=>t.classList.remove('active')); el.classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('tab-'+name).classList.add('active');
+    document.getElementById('tabContent').scrollTop=0;
+}
+
+// ── STATS ──
+async function loadStats(){
+    try{
+        const res=await fetch('/api/admin/stats');
+        const data=await res.json();
+        document.getElementById('sTotal').textContent=data.total;
+        document.getElementById('sPending').textContent=data.pending;
+        document.getElementById('sProd').textContent=data.in_production;
+        document.getElementById('sRevenue').textContent='₦'+Math.round(data.week_revenue).toLocaleString();
+    }catch{}
+}
+
+// ── ORDERS ──
+async function loadOrders(){
+    try{
+        const res=await fetch('/api/admin/orders');
+        const data=await res.json();
+        allOrders=data.data||[];
+        renderOrders(allOrders);
+    }catch{ document.getElementById('ordersList').innerHTML='<div class="empty"><ion-icon name="wifi-outline"></ion-icon><p>Could not load orders</p></div>'; }
+}
+
+async function pollOrders(){
+    try{
+        const res=await fetch('/api/admin/orders');
+        const data=await res.json();
+        const newOrders=data.data||[];
+        if(newOrders.length>prevOrderCount && prevOrderCount>0){
+            // New order alert
+            document.getElementById('notifDot').classList.add('show');
+            playNotif();
+        }
+        prevOrderCount=newOrders.length;
+        allOrders=newOrders;
+        renderOrders(allOrders);
+        loadStats();
+    }catch{}
+}
+
+function playNotif(){
+    try{
+        const ctx=new(window.AudioContext||window.webkitAudioContext)();
+        [0,0.15,0.3].forEach(t=>{
+            const o=ctx.createOscillator(), g=ctx.createGain();
+            o.connect(g); g.connect(ctx.destination);
+            o.frequency.value=880; o.type='sine';
+            g.gain.setValueAtTime(0.3,ctx.currentTime+t);
+            g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.12);
+            o.start(ctx.currentTime+t); o.stop(ctx.currentTime+t+0.15);
+        });
+    }catch{}
+}
+
+function filterOrders(filter,el){
+    document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active')); el.classList.add('active');
+    let filtered=allOrders;
+    if(filter==='pending') filtered=allOrders.filter(o=>o.payment_status==='pending');
+    else if(filter==='confirmed') filtered=allOrders.filter(o=>o.payment_status==='confirmed');
+    else if(filter==='in_production') filtered=allOrders.filter(o=>o.order_status==='in_production');
+    else if(filter==='done') filtered=allOrders.filter(o=>o.order_status==='done');
+    renderOrders(filtered);
+}
+
+function renderOrders(orders){
+    const list=document.getElementById('ordersList');
+    if(!orders.length){ list.innerHTML='<div class="empty"><ion-icon name="receipt-outline"></ion-icon><p>No orders yet</p></div>'; return; }
+    list.innerHTML=orders.map(o=>{
+        const date=new Date(o.created_at).toLocaleDateString('en-NG',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+        const items=(o.order_items||[]).map(i=>i.product_name).join(', ')||'No items';
+        const mockupUrl=(o.order_items||[]).find(i=>i.mockup_preview_url)?.mockup_preview_url||'';
+        const proofUrl=o.payment_proof_url||'';
+        const payBadge=o.payment_status==='pending'?'b-pending':o.payment_status==='confirmed'?'b-confirmed':'b-rejected';
+        const ordBadge=o.order_status==='in_production'?'b-production':o.order_status==='done'?'b-done':'b-pending';
+        return `<div class="order-card">
+            <div class="oc-top">
+                <div><div class="oc-id">${o.order_number}</div><div class="oc-time">${date}</div></div>
+                <div style="text-align:right;"><div class="oc-amount">₦${Number(o.amount_paid).toLocaleString()}</div><div class="oc-balance">Balance: ₦${Number(o.balance_due).toLocaleString()}</div></div>
+            </div>
+            <div class="oc-customer">${o.customer_name}</div>
+            <div class="oc-phone">${o.customer_whatsapp} · ${o.delivery_type==='pickup'?'📦 Pickup':'🚚 Delivery'}</div>
+            <div class="oc-items">${items}</div>
+            ${(mockupUrl||proofUrl)?`<div class="oc-media">
+                ${mockupUrl?`<div><div class="oc-img" onclick="viewImg('${mockupUrl}')"><img src="${mockupUrl}" alt="Mockup"></div><div class="oc-img-label">Design Mockup</div></div>`:''}
+                ${proofUrl?`<div><div class="oc-img" onclick="viewImg('${proofUrl}')"><img src="${proofUrl}" alt="Receipt"></div><div class="oc-img-label">Payment Proof</div></div>`:''}
+            </div>`:''}
+            <div class="oc-badges">
+                <span class="badge ${payBadge}">💳 ${o.payment_status}</span>
+                <span class="badge ${ordBadge}">⚙ ${o.order_status.replace('_',' ')}</span>
+                <span class="badge ${o.source==='ai'?'b-ai':'b-catalog'}">${o.source==='ai'?'🤖 AI':'🛍 Catalog'}</span>
+            </div>
+            <div class="oc-actions">
+                ${o.payment_status==='pending'?`<button class="oa-btn btn-confirm" onclick="updateOrder('${o.id}',{payment_status:'confirmed'})"><ion-icon name="checkmark-outline"></ion-icon>Confirm</button><button class="oa-btn btn-reject" onclick="updateOrder('${o.id}',{payment_status:'rejected'})"><ion-icon name="close-outline"></ion-icon>Reject</button>`:''}
+                ${o.payment_status==='confirmed'&&o.order_status==='pending'?`<button class="oa-btn btn-prod" onclick="updateOrder('${o.id}',{order_status:'in_production'})"><ion-icon name="construct-outline"></ion-icon>Start Prod.</button>`:''}
+                ${o.order_status==='in_production'?`<button class="oa-btn btn-done" onclick="updateOrder('${o.id}',{order_status:'done'})"><ion-icon name="checkmark-done-outline"></ion-icon>Mark Done</button>`:''}
+                <button class="oa-btn btn-wa" onclick="contactCustomer('${o.customer_whatsapp}','${o.order_number}','${o.customer_name}',${JSON.stringify(items).replace(/'/g,"&#39;")})"><ion-icon name="logo-whatsapp"></ion-icon>WhatsApp</button>
+            </div>
+        </div>`;
+    }).join('');
+    prevOrderCount=allOrders.length;
+}
+
+async function updateOrder(id,changes){
+    try{ await fetch(`/api/admin/orders/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(changes)}); await loadOrders(); loadStats(); }
+    catch{ alert('Update failed'); }
+}
+
+function contactCustomer(phone,orderId,name,items){
+    const msg=`Hello ${name}! 🎉 Your Elite Print Studio order (${orderId}) — ${items} — is ready. Please come for pickup or let us know if you need delivery. Thank you for your patronage! 🙏`;
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+function viewImg(url){ document.getElementById('viewerImg').src=url; document.getElementById('imgViewer').classList.add('show'); }
+function closeViewer(){ document.getElementById('imgViewer').classList.remove('show'); }
+
+// ── PRODUCTS ──
+async function loadProducts(){
+    try{
+        const [pr,cr]=await Promise.all([fetch('/api/products'),fetch('/api/categories')]);
+        const pd=await pr.json(); const cd=await cr.json();
+        allProducts=pd.data||[]; allCats=cd.data||[];
+        renderProducts(); populateCats();
+    }catch{}
+}
+
+function populateCats(){
+    const sel=document.getElementById('pCat');
+    sel.innerHTML='<option value="">Select category</option>';
+    allCats.forEach(c=>sel.innerHTML+=`<option value="${c.id}">${c.icon||''} ${c.name}</option>`);
+}
+
+function renderProducts(){
+    const list=document.getElementById('productsList');
+    if(!allProducts.length){ list.innerHTML='<div class="empty"><ion-icon name="cube-outline"></ion-icon><p>No products. Add one!</p></div>'; return; }
+    list.innerHTML=allProducts.map(p=>{
+        const img=(p.product_images?.find(i=>i.is_primary)||p.product_images?.[0])?.image_url;
+        const thumb=img?`<div class="prod-thumb"><img src="${img}" alt="${p.name}"></div>`:`<div class="prod-thumb">${p.categories?.icon||'🖼️'}</div>`;
+        return `<div class="prod-card">
+            ${thumb}
+            <div class="prod-info">
+                <div class="prod-name">${p.name} ${!p.is_active?'<span class="inactive-badge">Inactive</span>':''}</div>
+                <div class="prod-price">₦${Number(p.base_price).toLocaleString()}</div>
+                <div class="prod-cat">${p.categories?.name||'Uncategorized'}</div>
+            </div>
+            <div class="prod-btns">
+                <button class="pb pb-edit" onclick='editProd(${JSON.stringify(p).replace(/'/g,"&#39;")})'><ion-icon name="pencil-outline"></ion-icon></button>
+                <button class="pb pb-del" onclick="delProd('${p.id}')"><ion-icon name="trash-outline"></ion-icon></button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function openProdModal(prod=null){
+    editingProdId=prod?.id||null; newProdImgFile=null;
+    document.getElementById('prodModalTitle').textContent=prod?'Edit Product':'Add Product';
+    document.getElementById('editProdId').value=prod?.id||'';
+    document.getElementById('pName').value=prod?.name||'';
+    document.getElementById('pPrice').value=prod?.base_price||'';
+    document.getElementById('pDesc').value=prod?.description||'';
+    document.getElementById('pCat').value=prod?.category_id||'';
+    document.getElementById('pSizes').value=(prod?.available_sizes||[]).join(', ');
+    document.getElementById('pColors').value=(prod?.available_colors||[]).join(', ');
+    document.getElementById('prodImgPreview').style.display='none';
+    document.getElementById('imgUploadLabel').textContent='Tap to upload product image';
+    document.getElementById('pCustom').classList.toggle('on',prod?.is_customizable!==false);
+    document.getElementById('pActive').classList.toggle('on',prod?.is_active!==false);
+    document.getElementById('prodModal').classList.add('show');
+}
+
+function editProd(p){ openProdModal(p); }
+function closeProdModal(){ document.getElementById('prodModal').classList.remove('show'); }
+
+function handleProdImg(event){
+    const file=event.target.files[0]; if(!file) return;
+    newProdImgFile=file;
+    const reader=new FileReader();
+    reader.onload=(e)=>{ document.getElementById('prodImgPreview').src=e.target.result; document.getElementById('prodImgPreview').style.display='block'; document.getElementById('imgUploadLabel').textContent='✓ Image selected'; };
+    reader.readAsDataURL(file); event.target.value='';
+}
+
+async function saveProd(){
+    const name=document.getElementById('pName').value.trim();
+    const price=document.getElementById('pPrice').value;
+    if(!name||!price){ alert('Name and price required'); return; }
+    const payload={
+        name, base_price:parseFloat(price),
+        description:document.getElementById('pDesc').value.trim(),
+        category_id:document.getElementById('pCat').value||null,
+        available_sizes:document.getElementById('pSizes').value.split(',').map(s=>s.trim()).filter(Boolean),
+        available_colors:document.getElementById('pColors').value.split(',').map(s=>s.trim()).filter(Boolean),
+        is_customizable:document.getElementById('pCustom').classList.contains('on'),
+        is_active:document.getElementById('pActive').classList.contains('on')
+    };
+    try{
+        let res, data;
+        if(editingProdId){ res=await fetch(`/api/admin/products/${editingProdId}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); }
+        else{ res=await fetch('/api/admin/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); }
+        data=await res.json();
+        if(newProdImgFile && data.data?.[0]?.id){
+            const fd=new FormData(); fd.append('file',newProdImgFile); fd.append('product_id',data.data[0].id); fd.append('is_primary','true');
+            await fetch('/api/upload/product-image',{method:'POST',body:fd});
+        }
+        closeProdModal(); loadProducts();
+    }catch{ alert('Failed to save product'); }
+}
+
+async function delProd(id){
+    if(!confirm('Delete this product?')) return;
+    await fetch(`/api/admin/products/${id}`,{method:'DELETE'});
+    loadProducts();
+}
+
+// ── SETTINGS ──
+async function loadSettings(){
+    try{
+        const res=await fetch('/api/settings');
+        const data=await res.json();
+        const s=data.data||{};
+        document.getElementById('promoText').value=s.promo_text||'';
+        if(s.promo_active==='true') document.getElementById('promoToggle').classList.add('on');
+        document.getElementById('bankName').value=s.bank_name||'OPay';
+        document.getElementById('opayNum').value=s.opay_number||'8088060408';
+        document.getElementById('accName').value=s.account_name||'Elite Print Studio';
+        document.getElementById('waNum').value=s.whatsapp_number||'2348088060408';
+        document.getElementById('bizAddr').value=s.business_address||'';
+        if(s.logo_url){ document.getElementById('logoPreview').src=s.logo_url; document.getElementById('logoPreview').style.display='block'; document.getElementById('logoUploadLabel').textContent='✓ Logo uploaded. Tap to change'; }
+    }catch{}
+}
+
+async function savePromo(){
+    await fetch('/api/admin/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({promo_text:document.getElementById('promoText').value,promo_active:String(document.getElementById('promoToggle').classList.contains('on'))})});
+    alert('Promo saved! ✓');
+}
+
+async function saveSettings(){
+    await fetch('/api/admin/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({bank_name:document.getElementById('bankName').value,opay_number:document.getElementById('opayNum').value,account_name:document.getElementById('accName').value,whatsapp_number:document.getElementById('waNum').value,business_address:document.getElementById('bizAddr').value})});
+    alert('Settings saved! ✓');
+}
+
+async function changePass(){
+    const p=document.getElementById('newPass').value.trim();
+    if(!p){ alert('Enter a new password'); return; }
+    if(!confirm('Change admin password?')) return;
+    await fetch('/api/admin/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({admin_password:p})});
+    alert('Password updated! ✓ Note: This only updates in the database. Update main.py ADMIN_PASSWORD too for full security.');
+    document.getElementById('newPass').value='';
+}
+
+async function uploadLogo(event){
+    const file=event.target.files[0]; if(!file) return;
+    document.getElementById('logoUploadLabel').textContent='Uploading...';
+    const fd=new FormData(); fd.append('file',file);
+    const res=await fetch('/api/upload/logo',{method:'POST',body:fd});
+    const data=await res.json();
+    if(data.success){ document.getElementById('logoPreview').src=data.url; document.getElementById('logoPreview').style.display='block'; document.getElementById('logoUploadLabel').textContent='✓ Logo uploaded! Tap to change'; }
+    else{ document.getElementById('logoUploadLabel').textContent='Upload failed. Try again.'; }
+    event.target.value='';
+}
+</script>
+</body>
+</html>
