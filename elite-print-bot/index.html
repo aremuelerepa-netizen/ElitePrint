@@ -170,7 +170,7 @@
             <div class="sb-group">Navigate</div>
             <a class="sb-item active" href="/"><ion-icon name="chatbubble-ellipses-outline"></ion-icon> AI Assistant</a>
             <a class="sb-item" href="/marketplace"><ion-icon name="storefront-outline"></ion-icon> Browse Catalog</a>
-            <a class="sb-item" href="/studio"><ion-icon name="color-palette-outline"></ion-icon> Design Studio</a>
+            <a class="sb-item" href="/about"><ion-icon name="person-outline"></ion-icon> About Us</a>
             <div class="sb-group" style="margin-top:10px;">Quick Help</div>
             <div class="sb-item" onclick="quickMsg('Show me all your products and prices'); closeSidebar()"><ion-icon name="pricetag-outline"></ion-icon> Products & Prices</div>
             <div class="sb-item" onclick="quickMsg('What is your turnaround time?'); closeSidebar()"><ion-icon name="time-outline"></ion-icon> Turnaround Time</div>
@@ -210,12 +210,12 @@
                 What would you like today?
                 <div class="quick-grid">
                     <div class="qcard qcard-blue" onclick="location.href='/marketplace'">
-                        <div class="qcard-img" id="catalogCardImg"></div>
+                        <div class="qcard-img" id="catalogCardImg">🛍️</div>
                         <div class="qcard-label">Browse Catalog</div>
                     </div>
-                    <div class="qcard qcard-gold" onclick="location.href='/studio'">
-                        <div class="qcard-img" id="studioCardImg"></div>
-                        <div class="qcard-label">Design My Own</div>
+                    <div class="qcard qcard-gold" onclick="location.href='/about'">
+                        <div class="qcard-img">👤</div>
+                        <div class="qcard-label">About Us</div>
                     </div>
                     <div class="qcard qcard-green" onclick="openWA()">
                         <div class="qcard-img">📞</div>
@@ -223,9 +223,9 @@
                     </div>
                 </div>
                 <div class="chip-row">
-                    <div class="chip" onclick="quickMsg('What gift items do you have?')">Gift ideas</div>
-                    <div class="chip" onclick="quickMsg('What is your turnaround time?')">Turnaround</div>
-                    <div class="chip" onclick="quickMsg('Do you offer delivery?')"> Delivery</div>
+                    <div class="chip" onclick="quickMsg('What gift items do you have?')">🎁 Gift ideas</div>
+                    <div class="chip" onclick="quickMsg('What is your turnaround time?')">⏱ Turnaround</div>
+                    <div class="chip" onclick="quickMsg('Do you offer delivery?')">🚚 Delivery</div>
                 </div>
             </div>
         </div>
@@ -364,7 +364,8 @@ async function handleReceipt(event) {
     const file = event.target.files[0];
     if (!file) return;
     const btn = document.getElementById('receiptBtn');
-    btn.textContent = 'Uploading...';
+    btn.innerHTML = '<ion-icon name="hourglass-outline"></ion-icon> Uploading...';
+    btn.style.pointerEvents = 'none';
     try {
         const formData = new FormData();
         formData.append('file', file);
@@ -374,24 +375,78 @@ async function handleReceipt(event) {
             btn.innerHTML = '<ion-icon name="checkmark-circle-outline"></ion-icon> Receipt uploaded!';
             btn.classList.remove('glow');
             btn.classList.add('uploaded');
-            addUserMsg(`<span style="font-size:11px;opacity:0.8;"> Payment receipt uploaded</span><br><img src="${data.url}" style="max-width:100%;border-radius:10px;margin-top:6px;display:block;">`);
-            // Send to AI
+            addUserMsg(`<span style="font-size:11px;opacity:0.8;">📸 Payment receipt uploaded</span><br><img src="${data.url}" style="max-width:100%;border-radius:10px;margin-top:6px;display:block;">`);
+
+            // Extract order context from conversation history
+            const conversationText = history.map(h => `${h.role}: ${h.content}`).join('\n');
+            const ctx = extractOrderContext(conversationText, data.url);
+
             const typing = addTyping();
             const chatRes = await fetch('/chat', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: 'I have uploaded my payment receipt.', history: history.slice(-10), has_receipt: true, order_data: pendingOrderData })
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: 'I have uploaded my payment receipt.',
+                    history: history.slice(-10),
+                    has_receipt: true,
+                    proof_url: data.url,
+                    conversation_context: ctx
+                })
             });
             const chatData = await chatRes.json();
             typing.remove();
-            addBotMsg(chatData.response.replace(/\n/g, '<br>'));
+            let html = chatData.response.replace(/\n/g, '<br>');
+            if (chatData.order_number) {
+                html += `<div class="msg-action gold" style="margin-top:10px;"><ion-icon name="checkmark-circle-outline"></ion-icon> Order ID: <strong>${chatData.order_number}</strong></div>`;
+            }
+            addBotMsg(html);
             history.push({ role: 'user', content: 'I uploaded my payment receipt.' });
             history.push({ role: 'assistant', content: chatData.response });
             localStorage.setItem('eliteChat', JSON.stringify(history.slice(-20)));
+        } else {
+            throw new Error('Upload failed');
         }
     } catch {
         btn.innerHTML = '<ion-icon name="cloud-upload-outline"></ion-icon> Upload Payment Receipt';
+        btn.style.pointerEvents = 'auto';
+        addBotMsg('Receipt upload failed. Please try again or send directly on WhatsApp. 😔');
     }
     event.target.value = '';
+}
+
+function extractOrderContext(conversationText, proofUrl) {
+    // Extract order details from conversation
+    const ctx = { proof_url: proofUrl, delivery_type: 'pickup', source: 'ai' };
+
+    // Name
+    const nameMatch = conversationText.match(/(?:name[:\s]+|i(?:'m| am)\s+)([A-Z][a-zA-Z\s]{1,30})/i);
+    if (nameMatch) ctx.customer_name = nameMatch[1].trim();
+
+    // WhatsApp
+    const phoneMatch = conversationText.match(/(\+?234\d{10}|0[789]\d{9})/);
+    if (phoneMatch) ctx.customer_whatsapp = phoneMatch[1];
+
+    // Delivery
+    if (conversationText.toLowerCase().includes('delivery')) ctx.delivery_type = 'delivery';
+
+    // Amount — look for ₦ amounts
+    const amountMatches = conversationText.match(/₦[\d,]+/g);
+    if (amountMatches) {
+        const amounts = amountMatches.map(a => parseFloat(a.replace(/[₦,]/g, '')));
+        ctx.total_amount = Math.max(...amounts);
+    }
+
+    // Product
+    const products = ['mug', 'shirt', 'cap', 'bottle', 'pillow', 'frame', 'banner'];
+    for (const p of products) {
+        if (conversationText.toLowerCase().includes(p)) {
+            ctx.product_name = p.charAt(0).toUpperCase() + p.slice(1);
+            break;
+        }
+    }
+    ctx.quantity = 1;
+
+    return ctx;
 }
 
 function handleDesign(event) {
