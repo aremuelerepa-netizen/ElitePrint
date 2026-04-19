@@ -21,11 +21,15 @@
         .h-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text);flex:1;}
 
         /* PRODUCT TABS */
-        .prod-tabs{display:flex;gap:7px;padding:10px 12px;overflow-x:auto;background:var(--black);border-bottom:1px solid var(--border);flex-shrink:0;}
+        .prod-tabs{display:flex;gap:8px;padding:12px 14px;overflow-x:auto;background:var(--black);border-bottom:1px solid var(--border);flex-shrink:0;}
         .prod-tabs::-webkit-scrollbar{display:none;}
-        .ptab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 11px;border-radius:12px;background:var(--surface);border:1px solid var(--border);color:var(--text-muted);font-size:10px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0;touch-action:manipulation;}
-        .ptab .ti{font-size:20px;}
-        .ptab.active,.ptab:hover{background:rgba(245,200,66,0.1);border-color:var(--gold);color:var(--gold);}
+        .ptab{display:flex;flex-direction:column;align-items:center;gap:0;border-radius:14px;background:var(--surface);border:1.5px solid var(--border);color:var(--text-muted);font-size:10px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0;touch-action:manipulation;overflow:hidden;width:72px;}
+        .ptab-img{width:72px;height:54px;object-fit:cover;display:block;background:var(--surface2);filter:grayscale(50%) brightness(0.65);transition:filter 0.2s;}
+        .ptab-icon{width:72px;height:54px;display:flex;align-items:center;justify-content:center;font-size:26px;background:var(--surface2);}
+        .ptab-label{font-size:10px;font-weight:700;padding:5px 4px 6px;color:var(--text-muted);transition:color 0.15s;text-align:center;width:100%;}
+        .ptab.active,.ptab:hover{border-color:var(--gold);}
+        .ptab.active .ptab-img,.ptab:hover .ptab-img{filter:grayscale(0%) brightness(1);}
+        .ptab.active .ptab-label,.ptab:hover .ptab-label{color:var(--gold);}
         .ptab:active{transform:scale(0.93);}
 
         .studio-scroll{flex:1;overflow-y:auto;padding:14px;}
@@ -229,7 +233,7 @@
 // ── PRODUCT DATA WITH REALISTIC MOCKUP URLS ──
 const PRODUCTS = [
     {
-        id:'mug', label:'Mug', icon:'☕', price:4500,
+        id:'mug', label:'Mug', price:4500,
         sizes:[],
         designArea:{x:0.22,y:0.28,w:0.56,h:0.44}, // where design sits on product
         colors:[
@@ -242,7 +246,7 @@ const PRODUCTS = [
         ]
     },
     {
-        id:'shirt', label:'Shirt', icon:'👕', price:8000,
+        id:'shirt', label:'Shirt', price:8000,
         sizes:['S','M','L','XL','XXL'],
         designArea:{x:0.28,y:0.22,w:0.44,h:0.38},
         colors:[
@@ -256,7 +260,7 @@ const PRODUCTS = [
         ]
     },
     {
-        id:'cap', label:'Cap', icon:'🧢', price:5000,
+        id:'cap', label:'Cap', price:5000,
         sizes:['One Size'],
         designArea:{x:0.30,y:0.20,w:0.40,h:0.35},
         colors:[
@@ -282,7 +286,7 @@ const PRODUCTS = [
         ]
     },
     {
-        id:'pillow', label:'Pillow', icon:'🛋️', price:12500,
+        id:'pillow', label:'Pillow', price:12500,
         sizes:['12x12','16x16','18x18'],
         designArea:{x:0.15,y:0.15,w:0.70,h:0.70},
         colors:[
@@ -294,7 +298,7 @@ const PRODUCTS = [
         ]
     },
     {
-        id:'frame', label:'Frame', icon:'🖼️', price:8000,
+        id:'frame', label:'Frame', price:8000,
         sizes:['8x10','12x16','24x36'],
         designArea:{x:0.12,y:0.12,w:0.76,h:0.76},
         colors:[
@@ -564,10 +568,20 @@ function onUp() {
 
 // ── RENDER TABS ──
 function renderTabs() {
-    document.getElementById('prodTabs').innerHTML = PRODUCTS.map(p =>
-        `<div class="ptab ${p.id===selProd.id?'active':''}" onclick="pickProd('${p.id}')">
-            <span class="ti">${p.icon}</span>${p.label}
-        </div>`).join('');
+    document.getElementById('prodTabs').innerHTML = PRODUCTS.map(p => {
+        const thumbUrl = p.colors[0].mockup;
+        const imgHtml = thumbUrl
+            ? `<img class="ptab-img" src="${thumbUrl}" alt="${p.label}" onload="this.style.opacity=1" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" style="opacity:0;transition:opacity 0.3s;"><div class="ptab-icon" style="display:none;">${p.icon}</div>`
+            : `<div class="ptab-icon">${p.icon}</div>`;
+        return `<div class="ptab ${p.id===selProd.id?'active':''}" onclick="pickProd('${p.id}')">
+            ${imgHtml}
+            <div class="ptab-label">${p.label}</div>
+        </div>`;
+    }).join('');
+    // Fade in images as they load
+    document.querySelectorAll('.ptab-img').forEach(img => {
+        if (img.complete) img.style.opacity = 1;
+    });
 }
 
 function pickProd(id) {
