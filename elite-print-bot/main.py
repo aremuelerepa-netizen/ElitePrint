@@ -85,9 +85,9 @@ async def index(request: Request):
 async def marketplace(request: Request):
     return templates.TemplateResponse("marketplace.html", {"request": request})
 
-@app.get("/about")
+@app.get("/studio")
 async def about(request: Request):
-    return templates.TemplateResponse("about.html", {"request": request})
+    return templates.TemplateResponse("studio.html", {"request": request})
 
 @app.get("/order")
 async def order(request: Request):
