@@ -9,34 +9,45 @@
     <style>
         :root{--gold:#F5C842;--gold2:#E8A800;--blue:#00B4FF;--blue2:#0090D4;--black:#0A0A0A;--dark:#111114;--surface:#18181C;--surface2:#222228;--border:#2A2A32;--text:#F0EEF8;--text-muted:#7A7890;--green:#00D068;}
         *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+        button{touch-action:manipulation;}
         body{font-family:'Space Grotesk',sans-serif;background:#070709;display:flex;justify-content:center;align-items:center;height:100dvh;overflow:hidden;}
         .app{width:100%;height:100dvh;background:var(--dark);display:flex;flex-direction:column;overflow:hidden;}
         @media(min-width:520px){.app{width:420px;height:93vh;border-radius:26px;box-shadow:0 0 0 1px rgba(255,255,255,0.05),0 30px 80px rgba(0,0,0,0.9);}}
 
         .header{display:flex;align-items:center;gap:10px;padding:13px 14px;background:var(--black);border-bottom:1px solid var(--border);flex-shrink:0;position:relative;}
         .header::after{content:'';position:absolute;bottom:-1px;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),var(--blue),transparent);opacity:0.4;}
-        .back-btn{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:23px;cursor:pointer;}
+        .back-btn{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:23px;cursor:pointer;transition:transform 0.08s;}
+        .back-btn:active{transform:scale(0.88);}
         .h-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text);flex:1;}
 
         /* PRODUCT TABS */
         .prod-tabs{display:flex;gap:7px;padding:10px 12px;overflow-x:auto;background:var(--black);border-bottom:1px solid var(--border);flex-shrink:0;}
         .prod-tabs::-webkit-scrollbar{display:none;}
-        .ptab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 11px;border-radius:12px;background:var(--surface);border:1px solid var(--border);color:var(--text-muted);font-size:10px;font-weight:700;cursor:pointer;transition:all 0.2s;flex-shrink:0;}
+        .ptab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 11px;border-radius:12px;background:var(--surface);border:1px solid var(--border);color:var(--text-muted);font-size:10px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0;touch-action:manipulation;}
         .ptab .ti{font-size:20px;}
         .ptab.active,.ptab:hover{background:rgba(245,200,66,0.1);border-color:var(--gold);color:var(--gold);}
+        .ptab:active{transform:scale(0.93);}
 
-        /* STUDIO SCROLL */
         .studio-scroll{flex:1;overflow-y:auto;padding:14px;}
         .studio-scroll::-webkit-scrollbar{width:2px;}
         .studio-scroll::-webkit-scrollbar-thumb{background:var(--border);}
 
-        /* CANVAS AREA */
-        .canvas-wrap{background:var(--surface);border-radius:18px;padding:16px;margin-bottom:12px;border:1px solid var(--border);}
-        .canvas-label{font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
-        .canvas-stage{position:relative;width:100%;aspect-ratio:1;border-radius:14px;overflow:hidden;background:#1a1a1e;cursor:crosshair;touch-action:none;}
+        /* CANVAS */
+        .canvas-wrap{background:var(--surface);border-radius:18px;padding:14px;margin-bottom:12px;border:1px solid var(--border);}
+        .canvas-label{font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+        .canvas-hint-tag{font-size:10px;color:var(--blue);font-weight:600;}
+        .canvas-stage{position:relative;width:100%;aspect-ratio:1;border-radius:14px;overflow:hidden;background:#1a1a1e;touch-action:none;}
         #bgCanvas{position:absolute;inset:0;width:100%;height:100%;}
-        #overlayCanvas{position:absolute;inset:0;width:100%;height:100%;}
-        .canvas-hint{font-size:11px;color:var(--text-muted);text-align:center;margin-top:8px;}
+        #overlayCanvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair;}
+
+        /* COLOR SWATCHES — product colors */
+        .color-section{margin-bottom:12px;}
+        .color-section-label{font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+        .color-swatches{display:flex;gap:8px;flex-wrap:wrap;}
+        .cswatch{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.15s;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,0.4);touch-action:manipulation;}
+        .cswatch.active{border-color:var(--gold);transform:scale(1.2);}
+        .cswatch:active{transform:scale(0.9);}
+        .color-name{font-size:10px;color:var(--text-muted);margin-top:6px;}
 
         /* CONTROLS */
         .ctrl-section{background:var(--surface);border-radius:14px;padding:14px;margin-bottom:10px;border:1px solid var(--border);}
@@ -45,53 +56,55 @@
         .ctrl-input:focus{border-color:var(--gold);}
         .ctrl-input::placeholder{color:var(--text-muted);}
 
-        /* FONT CHIPS */
         .font-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px;}
-        .font-chip{padding:6px 11px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-size:12px;cursor:pointer;transition:all 0.2s;}
+        .font-chip{padding:6px 11px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-size:12px;cursor:pointer;transition:all 0.15s;touch-action:manipulation;}
         .font-chip.active{border-color:var(--gold);color:var(--gold);background:rgba(245,200,66,0.08);}
+        .font-chip:active{transform:scale(0.93);}
 
-        /* TEXT COLOR */
-        .color-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
-        .tswatch{width:30px;height:30px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.2s;flex-shrink:0;}
-        .tswatch.active{border-color:var(--gold);transform:scale(1.18);}
+        .text-color-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;}
+        .tcswatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:all 0.15s;flex-shrink:0;touch-action:manipulation;}
+        .tcswatch.active{border-color:var(--gold);transform:scale(1.2);}
+        .tcswatch:active{transform:scale(0.88);}
 
-        /* UPLOAD AREAS */
-        .upload-area{border:2px dashed var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;color:var(--text-muted);}
+        /* UPLOAD */
+        .upload-area{border:2px dashed var(--border);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;color:var(--text-muted);touch-action:manipulation;}
         .upload-area:hover{border-color:var(--blue);color:var(--blue);}
-        .upload-area ion-icon{font-size:26px;display:block;margin:0 auto 6px;}
-        .upload-area p{font-size:12px;}
+        .upload-area:active{transform:scale(0.97);}
+        .upload-area ion-icon{font-size:24px;display:block;margin:0 auto 5px;}
         .upload-preview{display:none;position:relative;}
         .upload-preview img{width:100%;border-radius:10px;}
-        .remove-upload{position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.7);color:white;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+        .remove-btn{position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.7);color:white;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;}
 
-        /* SIZE CHIPS */
+        /* SIZE + QTY */
         .size-row{display:flex;gap:7px;flex-wrap:wrap;}
-        .s-chip{padding:7px 12px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-size:12px;cursor:pointer;transition:all 0.2s;}
+        .s-chip{padding:7px 12px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-size:12px;cursor:pointer;transition:all 0.15s;touch-action:manipulation;}
         .s-chip.active{border-color:var(--blue);color:var(--blue);background:rgba(0,180,255,0.08);}
-
-        /* QTY */
+        .s-chip:active{transform:scale(0.93);}
         .qty-row{display:flex;align-items:center;gap:14px;}
-        .qty-btn{width:34px;height:34px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
-        .qty-btn:hover{border-color:var(--blue);color:var(--blue);}
+        .qty-btn{width:34px;height:34px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.1s;touch-action:manipulation;}
+        .qty-btn:active{background:var(--blue);color:white;transform:scale(0.88);}
         .qty-val{font-size:20px;font-weight:800;color:var(--text);min-width:26px;text-align:center;}
 
         /* PRICE */
         .price-box{background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.18);border-radius:14px;padding:14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
-        .price-left .pl{font-size:12px;color:var(--text-muted);}
-        .price-left .ps{font-size:11px;color:var(--text-muted);margin-top:3px;}
         .price-val{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--gold);}
 
         /* CTA */
-        .send-btn{width:100%;padding:15px;border-radius:14px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--black);font-size:15px;font-weight:800;border:none;cursor:pointer;margin-bottom:9px;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;}
-        .send-btn:active{opacity:0.85;}
-        .catalog-btn{width:100%;padding:13px;border-radius:14px;background:var(--surface);color:var(--text-muted);font-size:13px;font-weight:600;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Space Grotesk',sans-serif;}
+        .send-btn{width:100%;padding:15px;border-radius:14px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--black);font-size:15px;font-weight:800;border:none;cursor:pointer;margin-bottom:9px;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Space Grotesk',sans-serif;transition:transform 0.08s,opacity 0.08s;touch-action:manipulation;}
+        .send-btn:active{transform:scale(0.96);opacity:0.85;}
+        .sec-btn{width:100%;padding:13px;border-radius:14px;background:var(--surface);color:var(--text-muted);font-size:13px;font-weight:600;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Space Grotesk',sans-serif;touch-action:manipulation;}
+        .sec-btn:active{transform:scale(0.96);}
 
-        /* BOTTOM NAV */
+        /* OWN PHOTO UPLOAD TOGGLE */
+        .own-photo-toggle{display:flex;align-items:center;gap:8px;padding:10px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:11px;cursor:pointer;margin-bottom:10px;transition:all 0.15s;touch-action:manipulation;}
+        .own-photo-toggle:hover{border-color:var(--blue);}
+        .own-photo-toggle ion-icon{color:var(--blue);font-size:18px;}
+        .own-photo-toggle span{font-size:12px;font-weight:600;color:var(--text-muted);}
+
         .bnav{display:flex;background:var(--black);border-top:1px solid var(--border);flex-shrink:0;}
-        .btab{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 5px 8px;color:#555;cursor:pointer;font-size:10px;font-weight:600;gap:3px;transition:color 0.2s;text-decoration:none;border-top:2px solid transparent;}
+        .btab{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 5px 8px;color:#555;cursor:pointer;font-size:10px;font-weight:600;gap:3px;transition:color 0.2s;text-decoration:none;border-top:2px solid transparent;touch-action:manipulation;}
         .btab ion-icon{font-size:21px;}
         .btab.active{color:var(--gold);border-top-color:var(--gold);}
-
         input[type="file"]{display:none;}
     </style>
 </head>
@@ -100,35 +113,41 @@
     <div class="header">
         <div class="back-btn" onclick="history.back()"><ion-icon name="arrow-back-outline"></ion-icon></div>
         <div class="h-title">Design Studio</div>
-        <ion-icon name="refresh-outline" style="color:var(--text-muted);font-size:20px;cursor:pointer;" onclick="resetCanvas()"></ion-icon>
+        <ion-icon name="refresh-outline" style="color:var(--text-muted);font-size:20px;cursor:pointer;padding:8px;" onclick="resetAll()"></ion-icon>
     </div>
 
-    <!-- PRODUCT TABS -->
     <div class="prod-tabs" id="prodTabs"></div>
 
     <div class="studio-scroll">
-
         <!-- CANVAS -->
         <div class="canvas-wrap">
-            <div class="canvas-label">Live Preview — Drag to Position</div>
+            <div class="canvas-label">
+                <span>Live Preview</span>
+                <span class="canvas-hint-tag">Drag & resize your design</span>
+            </div>
             <div class="canvas-stage" id="canvasStage">
                 <canvas id="bgCanvas"></canvas>
                 <canvas id="overlayCanvas"></canvas>
             </div>
-            <div class="canvas-hint">Tap text or image on canvas to select · Drag to move · Use handles to resize</div>
         </div>
 
-        <!-- BACKGROUND PRODUCT IMAGE UPLOAD -->
+        <!-- PRODUCT COLOR -->
         <div class="ctrl-section">
-            <div class="ctrl-label">Product Photo (Optional — upload your own)</div>
-            <div class="upload-area" id="bgUploadArea" onclick="document.getElementById('bgFile').click()">
-                <ion-icon name="image-outline"></ion-icon>
-                <p>Upload your product photo</p>
-                <p style="font-size:10px;margin-top:3px;">Or use our product below ↓</p>
+            <div class="ctrl-label">Product Color</div>
+            <div class="color-swatches" id="colorSwatches"></div>
+            <div class="color-name" id="colorName"></div>
+        </div>
+
+        <!-- OWN PRODUCT UPLOAD -->
+        <div class="ctrl-section">
+            <div class="ctrl-label">Upload Your Own Product (Optional)</div>
+            <div class="own-photo-toggle" onclick="document.getElementById('bgFile').click()">
+                <ion-icon name="camera-outline"></ion-icon>
+                <span id="bgToggleLabel">Upload your own shirt/mug/etc photo</span>
             </div>
             <div class="upload-preview" id="bgPreview">
                 <img id="bgPreviewImg" src="" alt="">
-                <button class="remove-upload" onclick="removeBg()">✕</button>
+                <button class="remove-btn" onclick="removeBg()">✕</button>
             </div>
             <input type="file" id="bgFile" accept="image/*" onchange="handleBg(event)">
         </div>
@@ -136,30 +155,30 @@
         <!-- CUSTOM TEXT -->
         <div class="ctrl-section">
             <div class="ctrl-label">Your Text / Name</div>
-            <input type="text" class="ctrl-input" id="customText" placeholder="e.g. Happy Birthday Amara ❤️" oninput="updateOverlay()">
+            <input type="text" class="ctrl-input" id="customText" placeholder="e.g. Happy Birthday Amara ❤️" oninput="updateTextEl()">
             <div class="font-row">
                 <div class="font-chip active" data-font="Arial" onclick="selFont(this)">Classic</div>
                 <div class="font-chip" data-font="Georgia" onclick="selFont(this)">Elegant</div>
                 <div class="font-chip" data-font="Impact" onclick="selFont(this)">Strong</div>
                 <div class="font-chip" data-font="'Courier New'" onclick="selFont(this)">Mono</div>
             </div>
-            <div style="margin-top:10px;">
+            <div style="margin-top:12px;">
                 <div class="ctrl-label" style="margin-bottom:8px;">Text Color</div>
-                <div class="color-row" id="textColorRow"></div>
+                <div class="text-color-row" id="textColorRow"></div>
             </div>
         </div>
 
-        <!-- DESIGN/LOGO UPLOAD -->
+        <!-- LOGO/PHOTO UPLOAD -->
         <div class="ctrl-section">
             <div class="ctrl-label">Upload Your Photo / Logo</div>
-            <div class="upload-area" id="logoUploadArea" onclick="document.getElementById('logoFile').click()">
+            <div class="upload-area" id="logoArea" onclick="document.getElementById('logoFile').click()">
                 <ion-icon name="image-outline"></ion-icon>
-                <p>Tap to upload your photo or logo</p>
+                <p style="font-size:12px;font-weight:600;">Tap to upload photo or logo</p>
                 <p style="font-size:10px;margin-top:3px;">PNG with transparency works best</p>
             </div>
             <div class="upload-preview" id="logoPreview">
                 <img id="logoPreviewImg" src="" alt="">
-                <button class="remove-upload" onclick="removeLogo()">✕</button>
+                <button class="remove-btn" onclick="removeLogo()">✕</button>
             </div>
             <input type="file" id="logoFile" accept="image/*" onchange="handleLogo(event)">
         </div>
@@ -170,7 +189,7 @@
             <div class="size-row" id="sizeRow"></div>
         </div>
 
-        <!-- QUANTITY -->
+        <!-- QTY -->
         <div class="ctrl-section">
             <div class="ctrl-label">Quantity</div>
             <div class="qty-row">
@@ -182,24 +201,22 @@
 
         <!-- PRICE -->
         <div class="price-box">
-            <div class="price-left">
-                <div class="pl">Estimated Total</div>
-                <div class="ps">70% upfront = <span id="upfrontAmt" style="color:var(--blue);font-weight:700;">₦0</span></div>
+            <div>
+                <div style="font-size:12px;color:var(--text-muted);">Estimated Total</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">70% upfront = <span id="upfrontAmt" style="color:var(--blue);font-weight:700;">₦0</span></div>
             </div>
             <div class="price-val" id="totalPrice">₦0</div>
         </div>
 
-        <!-- CTAs -->
         <button class="send-btn" onclick="sendToElite()">
             <ion-icon name="send-outline"></ion-icon> Send to Elite Print
         </button>
-        <button class="catalog-btn" onclick="location.href='/marketplace'">
+        <button class="sec-btn" onclick="location.href='/marketplace'">
             <ion-icon name="storefront-outline"></ion-icon> Browse Catalog Instead
         </button>
         <div style="height:20px;"></div>
     </div>
 
-    <!-- BOTTOM NAV -->
     <div class="bnav">
         <a class="btab" href="/"><ion-icon name="chatbubble-ellipses-outline"></ion-icon>Chat</a>
         <a class="btab" href="/marketplace"><ion-icon name="storefront-outline"></ion-icon>Catalog</a>
@@ -209,345 +226,541 @@
 </div>
 
 <script>
+// ── PRODUCT DATA WITH REALISTIC MOCKUP URLS ──
 const PRODUCTS = [
-    {id:'mug',label:'Mug',icon:'☕',price:4500,colors:['#ffffff','#000000','#c0392b','#2980b9','#27ae60','#f39c12'],sizes:[]},
-    {id:'shirt',label:'Shirt',icon:'👕',price:8000,colors:['#ffffff','#000000','#2c3e50','#c0392b','#27ae60','#f39c12','#8e44ad'],sizes:['S','M','L','XL','XXL']},
-    {id:'cap',label:'Cap',icon:'🧢',price:5000,colors:['#000000','#ffffff','#2c3e50','#c0392b','#27ae60'],sizes:['One Size']},
-    {id:'bottle',label:'Bottle',icon:'💧',price:6000,colors:['#c0392b','#2980b9','#27ae60','#f39c12','#ffffff','#000000'],sizes:['500ml','750ml','1L']},
-    {id:'pillow',label:'Pillow',icon:'🛋️',price:12500,colors:['#ffffff','#f8f8f8','#2c3e50'],sizes:['12x12','16x16']},
-    {id:'frame',label:'Frame',icon:'🖼️',price:8000,colors:['#8B6914','#000000','#c0c0c0','#ffffff'],sizes:['8x10','12x16','24x36']},
+    {
+        id:'mug', label:'Mug', icon:'☕', price:4500,
+        sizes:[],
+        designArea:{x:0.22,y:0.28,w:0.56,h:0.44}, // where design sits on product
+        colors:[
+            {name:'White',    hex:'#ffffff', mockup:'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=600&q=80'},
+            {name:'Black',    hex:'#1a1a1a', mockup:'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=600&q=80'},
+            {name:'Red',      hex:'#c0392b', mockup:'https://images.unsplash.com/photo-1577937927133-66ef06acdf18?w=600&q=80'},
+            {name:'Blue',     hex:'#2980b9', mockup:'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=600&q=80'},
+            {name:'Green',    hex:'#27ae60', mockup:'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=600&q=80'},
+            {name:'Yellow',   hex:'#f39c12', mockup:'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=600&q=80'},
+        ]
+    },
+    {
+        id:'shirt', label:'Shirt', icon:'👕', price:8000,
+        sizes:['S','M','L','XL','XXL'],
+        designArea:{x:0.28,y:0.22,w:0.44,h:0.38},
+        colors:[
+            {name:'White',    hex:'#ffffff', mockup:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80'},
+            {name:'Black',    hex:'#1a1a1a', mockup:'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=600&q=80'},
+            {name:'Navy',     hex:'#1B2A4A', mockup:'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=600&q=80'},
+            {name:'Red',      hex:'#c0392b', mockup:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80'},
+            {name:'Grey',     hex:'#7f8c8d', mockup:'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600&q=80'},
+            {name:'Green',    hex:'#27ae60', mockup:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80'},
+            {name:'Purple',   hex:'#8e44ad', mockup:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80'},
+        ]
+    },
+    {
+        id:'cap', label:'Cap', icon:'🧢', price:5000,
+        sizes:['One Size'],
+        designArea:{x:0.30,y:0.20,w:0.40,h:0.35},
+        colors:[
+            {name:'Black',    hex:'#1a1a1a', mockup:'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&q=80'},
+            {name:'White',    hex:'#ffffff', mockup:'https://images.unsplash.com/photo-1534215754734-18e55d13e346?w=600&q=80'},
+            {name:'Navy',     hex:'#1B2A4A', mockup:'https://images.unsplash.com/photo-1556306535-0f09a537f0a3?w=600&q=80'},
+            {name:'Red',      hex:'#c0392b', mockup:'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&q=80'},
+            {name:'Olive',    hex:'#5D4E37', mockup:'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&q=80'},
+            {name:'Grey',     hex:'#7f8c8d', mockup:'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&q=80'},
+        ]
+    },
+    {
+        id:'bottle', label:'Bottle', icon:'💧', price:6000,
+        sizes:['500ml','750ml','1L'],
+        designArea:{x:0.28,y:0.20,w:0.44,h:0.55},
+        colors:[
+            {name:'Silver',   hex:'#BDC3C7', mockup:'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=600&q=80'},
+            {name:'Black',    hex:'#1a1a1a', mockup:'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=600&q=80'},
+            {name:'Red',      hex:'#c0392b', mockup:'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=600&q=80'},
+            {name:'Blue',     hex:'#2980b9', mockup:'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=600&q=80'},
+            {name:'Green',    hex:'#27ae60', mockup:'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=600&q=80'},
+            {name:'White',    hex:'#ffffff', mockup:'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=600&q=80'},
+        ]
+    },
+    {
+        id:'pillow', label:'Pillow', icon:'🛋️', price:12500,
+        sizes:['12x12','16x16','18x18'],
+        designArea:{x:0.15,y:0.15,w:0.70,h:0.70},
+        colors:[
+            {name:'White',    hex:'#ffffff', mockup:'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=600&q=80'},
+            {name:'Cream',    hex:'#F5F0E0', mockup:'https://images.unsplash.com/photo-1540574163026-643ea20ade25?w=600&q=80'},
+            {name:'Grey',     hex:'#95a5a6', mockup:'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=600&q=80'},
+            {name:'Navy',     hex:'#1B2A4A', mockup:'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=600&q=80'},
+            {name:'Black',    hex:'#1a1a1a', mockup:'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=600&q=80'},
+        ]
+    },
+    {
+        id:'frame', label:'Frame', icon:'🖼️', price:8000,
+        sizes:['8x10','12x16','24x36'],
+        designArea:{x:0.12,y:0.12,w:0.76,h:0.76},
+        colors:[
+            {name:'Black',    hex:'#1a1a1a', mockup:'https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=600&q=80'},
+            {name:'Brown',    hex:'#8B6914', mockup:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80'},
+            {name:'Silver',   hex:'#BDC3C7', mockup:'https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=600&q=80'},
+            {name:'White',    hex:'#f0f0f0', mockup:'https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=600&q=80'},
+            {name:'Gold',     hex:'#D4AF37', mockup:'https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=600&q=80'},
+        ]
+    },
 ];
 
-const TEXT_COLORS = ['#ffffff','#000000','#F5C842','#00B4FF','#FF4757','#00D068','#ff6b35','#a855f7'];
+const TEXT_COLORS = [
+    {hex:'#ffffff',name:'White'},{hex:'#000000',name:'Black'},
+    {hex:'#F5C842',name:'Gold'},{hex:'#00B4FF',name:'Blue'},
+    {hex:'#FF4757',name:'Red'},{hex:'#00D068',name:'Green'},
+    {hex:'#FF8C42',name:'Orange'},{hex:'#a855f7',name:'Purple'},
+];
 
-let selProd = PRODUCTS[0], selTextColor = '#ffffff', selFont = 'Arial', selSize = '', qty = 1;
-let bgImage = null, logoImage = null, productImage = null;
-let bgUrl = '', logoUrl = '';
+// ── STATE ──
+let selProd = PRODUCTS[0];
+let selColor = PRODUCTS[0].colors[0];
+let selFont = 'Arial';
+let selTextColor = '#ffffff';
+let selSize = '';
+let qty = 1;
+let bgImage = null;        // user-uploaded product photo
+let mockupImage = null;    // built-in mockup photo
+let logoImage = null;
+let elements = [];
+let activeEl = null;
+let dragOffX = 0, dragOffY = 0;
+let resizeStart = null;
+const HANDLE = 14;
 
-// Canvas setup
+// ── CANVAS ──
 const stage = document.getElementById('canvasStage');
 const bgCanvas = document.getElementById('bgCanvas');
-const overlayCanvas = document.getElementById('overlayCanvas');
+const ovCanvas = document.getElementById('overlayCanvas');
 const bgCtx = bgCanvas.getContext('2d');
-const ovCtx = overlayCanvas.getContext('2d');
-
-// Draggable elements
-let elements = []; // {type:'text'|'logo', x, y, w, h, dragging, resizing}
-let activeEl = null, dragOffX = 0, dragOffY = 0, resizeStart = null;
-const HANDLE_SIZE = 14;
+const ovCtx = ovCanvas.getContext('2d');
 
 function setupCanvas() {
     const size = stage.offsetWidth;
-    bgCanvas.width = overlayCanvas.width = size;
-    bgCanvas.height = overlayCanvas.height = size;
+    bgCanvas.width = ovCanvas.width = size;
+    bgCanvas.height = ovCanvas.height = size;
     drawBg(); drawOverlay();
 }
 
 // ── INIT ──
 window.onload = () => {
-    renderTabs(); renderTextColors();
+    renderTabs();
+    renderColors();
+    renderTextColors();
     const stored = sessionStorage.getItem('selectedProduct');
-    if (stored) { try { const p = JSON.parse(stored); const m = PRODUCTS.find(x=>x.label.toLowerCase()===p.categories?.name?.toLowerCase()); if(m) selProd=m; } catch{} }
-    setTimeout(() => { setupCanvas(); renderSizes(); updatePrice(); }, 100);
+    if (stored) {
+        try {
+            const p = JSON.parse(stored);
+            const match = PRODUCTS.find(x => x.label.toLowerCase() === (p.categories?.name || '').toLowerCase());
+            if (match) { selProd = match; selColor = match.colors[0]; }
+        } catch {}
+    }
+    setTimeout(() => { setupCanvas(); renderSizes(); updatePrice(); loadMockup(); }, 120);
     window.addEventListener('resize', setupCanvas);
     setupDrag();
 };
 
-function renderTabs() {
-    document.getElementById('prodTabs').innerHTML = PRODUCTS.map(p =>
-        `<div class="ptab ${p.id===selProd.id?'active':''}" onclick="pickProd('${p.id}')"><span class="ti">${p.icon}</span>${p.label}</div>`).join('');
+// ── MOCKUP LOADING ──
+function loadMockup() {
+    mockupImage = null;
+    if (bgImage) { drawBg(); return; } // user photo takes priority
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => { mockupImage = img; drawBg(); };
+    img.onerror = () => { mockupImage = null; drawBg(); }; // fallback to shapes
+    img.src = selColor.mockup;
+    drawBg(); // draw immediately with shape while loading
 }
 
-function pickProd(id) {
-    selProd = PRODUCTS.find(p=>p.id===id); selSize=(selProd.sizes[0]||'');
-    renderTabs(); renderSizes(); updatePrice();
-    if(!bgImage) drawBg();
-}
-
-function renderTextColors() {
-    document.getElementById('textColorRow').innerHTML = TEXT_COLORS.map(c =>
-        `<div class="tswatch ${c===selTextColor?'active':''}" style="background:${c};box-shadow:0 2px 5px rgba(0,0,0,0.4);" onclick="pickTextColor('${c}',this)"></div>`).join('');
-}
-
-function pickTextColor(c,el) {
-    selTextColor=c;
-    document.querySelectorAll('.tswatch').forEach(s=>s.classList.remove('active')); el.classList.add('active');
-    updateOverlay();
-}
-
-function selFont(el) {
-    selFont=el.dataset.font;
-    document.querySelectorAll('.font-chip').forEach(c=>c.classList.remove('active')); el.classList.add('active');
-    updateOverlay();
-}
-
-function renderSizes() {
-    const sec=document.getElementById('sizeSection'), row=document.getElementById('sizeRow');
-    if(!selProd.sizes.length){sec.style.display='none';return;}
-    sec.style.display='block'; selSize=selProd.sizes[0];
-    row.innerHTML=selProd.sizes.map(s=>`<div class="s-chip ${s===selSize?'active':''}" onclick="pickSize('${s}',this)">${s}</div>`).join('');
-}
-
-function pickSize(s,el){selSize=s;document.querySelectorAll('.s-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');}
-function changeQty(d){qty=Math.max(1,qty+d);document.getElementById('qtyDisplay').textContent=qty;updatePrice();}
-function updatePrice(){
-    const t=selProd.price*qty;
-    document.getElementById('totalPrice').textContent='₦'+t.toLocaleString();
-    document.getElementById('upfrontAmt').textContent='₦'+Math.round(t*0.7).toLocaleString();
-}
-
-// ── BACKGROUND DRAW ──
+// ── DRAW BACKGROUND ──
 function drawBg() {
-    const W=bgCanvas.width, H=bgCanvas.height;
-    bgCtx.clearRect(0,0,W,H);
-    if(bgImage){bgCtx.drawImage(bgImage,0,0,W,H);return;}
-    if(productImage){bgCtx.drawImage(productImage,0,0,W,H);return;}
-    // Draw product shape
-    drawProductShape(bgCtx,W,H);
+    const W = bgCanvas.width, H = bgCanvas.height;
+    bgCtx.clearRect(0, 0, W, H);
+
+    const source = bgImage || mockupImage;
+    if (source) {
+        // Draw mockup photo filling canvas
+        const scale = Math.max(W / source.width, H / source.height);
+        const sw = source.width * scale, sh = source.height * scale;
+        const sx = (W - sw) / 2, sy = (H - sh) / 2;
+        bgCtx.drawImage(source, sx, sy, sw, sh);
+
+        // Color tint overlay for non-white colors (subtle)
+        if (selColor.hex !== '#ffffff' && !bgImage) {
+            bgCtx.globalAlpha = 0.18;
+            bgCtx.fillStyle = selColor.hex;
+            bgCtx.fillRect(0, 0, W, H);
+            bgCtx.globalAlpha = 1;
+        }
+    } else {
+        // Fallback: draw product shape
+        drawProductShape(bgCtx, W, H);
+    }
 }
 
-function drawProductShape(ctx,W,H) {
-    ctx.fillStyle='#1a1a1e'; ctx.fillRect(0,0,W,H);
-    const cx=W/2, cy=H/2, p=selProd;
+function drawProductShape(ctx, W, H) {
+    ctx.fillStyle = '#1a1a1e'; ctx.fillRect(0, 0, W, H);
+    const cx = W/2, cy = H/2;
     ctx.save();
-    if(p.id==='mug'){
-        ctx.fillStyle='#3a3a3a';
-        rRect(ctx,cx-70,cy-80,140,160,18); ctx.fill();
-        ctx.strokeStyle='#3a3a3a'; ctx.lineWidth=18;
-        ctx.beginPath(); ctx.arc(cx+80,cy,40,-Math.PI*0.6,Math.PI*0.6); ctx.stroke();
-        ctx.fillStyle='#555'; rRect(ctx,cx-72,cy-92,144,24,12); ctx.fill();
-        ctx.fillStyle='rgba(255,255,255,0.03)'; rRect(ctx,cx-70,cy-80,140,160,18); ctx.fill();
-    } else if(p.id==='shirt'){
-        ctx.fillStyle='#2a2a2a';
-        rRect(ctx,cx-70,cy-50,140,150,12); ctx.fill();
-        ctx.save(); ctx.translate(cx-70,cy-50); ctx.rotate(-0.3); rRect(ctx,-50,0,60,60,8); ctx.fill(); ctx.restore();
-        ctx.save(); ctx.translate(cx+70,cy-50); ctx.rotate(0.3); rRect(ctx,-10,0,60,60,8); ctx.fill(); ctx.restore();
-        ctx.fillStyle='#1e1e1e'; rRect(ctx,cx-15,cy-52,30,20,8); ctx.fill();
-    } else if(p.id==='cap'){
-        ctx.fillStyle='#2a2a2a';
-        ctx.beginPath(); ctx.ellipse(cx,cy-10,100,70,0,Math.PI,0); ctx.closePath(); ctx.fill();
-        ctx.fillStyle='#222';
-        ctx.beginPath(); ctx.ellipse(cx+10,cy+50,120,20,0,0,Math.PI); ctx.fill();
-        ctx.fillStyle='#333'; ctx.fillRect(cx-8,cy-12,16,6);
-    } else if(p.id==='bottle'){
-        ctx.fillStyle='#2a2a2a'; rRect(ctx,cx-45,cy-100,90,200,30); ctx.fill();
-        ctx.fillStyle='#333'; rRect(ctx,cx-22,cy-118,44,28,10); ctx.fill();
-        ctx.fillStyle='rgba(255,255,255,0.04)'; rRect(ctx,cx-10,cy-80,20,140,8); ctx.fill();
-    } else if(p.id==='pillow'){
-        ctx.fillStyle='#2a2a2a'; rRect(ctx,cx-100,cy-75,200,150,30); ctx.fill();
-        ctx.strokeStyle='#3a3a3a'; ctx.lineWidth=3; rRect(ctx,cx-85,cy-60,170,120,20); ctx.stroke();
-    } else if(p.id==='frame'){
-        ctx.fillStyle='#4a3810'; rRect(ctx,cx-100,cy-110,200,220,12); ctx.fill();
-        ctx.fillStyle='#f5f5f5'; rRect(ctx,cx-80,cy-90,160,180,6); ctx.fill();
-        ctx.fillStyle='#e8e8e8'; rRect(ctx,cx-76,cy-86,152,172,4); ctx.fill();
+    ctx.fillStyle = selColor.hex || '#3a3a3a';
+
+    if (selProd.id === 'mug') {
+        rRect(ctx, cx-70, cy-80, 140, 160, 18); ctx.fill();
+        ctx.strokeStyle = selColor.hex; ctx.lineWidth = 18;
+        ctx.beginPath(); ctx.arc(cx+80, cy, 40, -Math.PI*0.6, Math.PI*0.6); ctx.stroke();
+        // Rim
+        ctx.fillStyle = shade(selColor.hex, -30);
+        rRect(ctx, cx-72, cy-92, 144, 24, 12); ctx.fill();
+        // Shine
+        ctx.fillStyle = 'rgba(255,255,255,0.08)';
+        rRect(ctx, cx-50, cy-65, 18, 100, 8); ctx.fill();
+    } else if (selProd.id === 'shirt') {
+        rRect(ctx, cx-70, cy-50, 140, 150, 12); ctx.fill();
+        ctx.save(); ctx.translate(cx-70, cy-50); ctx.rotate(-0.3);
+        rRect(ctx, -50, 0, 60, 60, 8); ctx.fill(); ctx.restore();
+        ctx.save(); ctx.translate(cx+70, cy-50); ctx.rotate(0.3);
+        rRect(ctx, -10, 0, 60, 60, 8); ctx.fill(); ctx.restore();
+        ctx.fillStyle = shade(selColor.hex, -20);
+        rRect(ctx, cx-15, cy-52, 30, 20, 8); ctx.fill();
+    } else if (selProd.id === 'cap') {
+        ctx.beginPath(); ctx.ellipse(cx, cy-10, 100, 70, 0, Math.PI, 0); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = shade(selColor.hex, -20);
+        ctx.beginPath(); ctx.ellipse(cx+10, cy+50, 120, 20, 0, 0, Math.PI); ctx.fill();
+        ctx.fillStyle = shade(selColor.hex, -10);
+        ctx.fillRect(cx-10, cy-14, 20, 7);
+    } else if (selProd.id === 'bottle') {
+        rRect(ctx, cx-45, cy-100, 90, 200, 30); ctx.fill();
+        ctx.fillStyle = shade(selColor.hex, -25);
+        rRect(ctx, cx-22, cy-118, 44, 28, 10); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.06)';
+        rRect(ctx, cx-10, cy-80, 14, 140, 6); ctx.fill();
+    } else if (selProd.id === 'pillow') {
+        rRect(ctx, cx-105, cy-80, 210, 160, 32); ctx.fill();
+        ctx.strokeStyle = shade(selColor.hex, -25); ctx.lineWidth = 2.5;
+        rRect(ctx, cx-88, cy-63, 176, 126, 22); ctx.stroke();
+    } else if (selProd.id === 'frame') {
+        ctx.fillStyle = selColor.hex;
+        rRect(ctx, cx-105, cy-115, 210, 230, 12); ctx.fill();
+        ctx.fillStyle = '#f0f0f0';
+        rRect(ctx, cx-85, cy-95, 170, 190, 5); ctx.fill();
+        ctx.fillStyle = '#e8e8e8';
+        rRect(ctx, cx-78, cy-88, 156, 176, 3); ctx.fill();
     }
     ctx.restore();
-    // Product label
-    ctx.fillStyle='rgba(255,255,255,0.15)'; ctx.font='bold 13px Space Grotesk,sans-serif';
-    ctx.textAlign='center'; ctx.fillText(p.icon+' '+p.label+' Preview',W/2,H-16);
+    ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.font = 'bold 12px Space Grotesk,sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText(selProd.icon + ' ' + selProd.label, W/2, H - 14);
 }
 
-function rRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+// ── OVERLAY ──
+function drawOverlay() {
+    const W = ovCanvas.width, H = ovCanvas.height;
+    ovCtx.clearRect(0, 0, W, H);
 
-// ── OVERLAY (draggable elements) ──
-function drawOverlay(){
-    const W=overlayCanvas.width, H=overlayCanvas.height;
-    ovCtx.clearRect(0,0,W,H);
-    elements.forEach((el,i)=>{
-        if(el.type==='text'){
-            ovCtx.save();
-            ovCtx.font=`bold ${el.fontSize}px ${selFont}`;
-            ovCtx.fillStyle=selTextColor;
-            ovCtx.textAlign='center'; ovCtx.textBaseline='middle';
-            ovCtx.shadowColor='rgba(0,0,0,0.6)'; ovCtx.shadowBlur=6;
-            ovCtx.fillText(el.text,el.x+el.w/2,el.y+el.h/2);
-            ovCtx.restore();
-        } else if(el.type==='logo' && el.img){
-            ovCtx.save();
-            ovCtx.drawImage(el.img,el.x,el.y,el.w,el.h);
-            ovCtx.restore();
+    // Design area guide (subtle)
+    const da = selProd.designArea;
+    ovCtx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ovCtx.setLineDash([4, 6]);
+    ovCtx.strokeRect(da.x*W, da.y*H, da.w*W, da.h*H);
+    ovCtx.setLineDash([]);
+
+    elements.forEach((el, i) => {
+        ovCtx.save();
+        if (el.type === 'text') {
+            // Shadow for printed look
+            ovCtx.shadowColor = 'rgba(0,0,0,0.45)';
+            ovCtx.shadowBlur = 4;
+            ovCtx.shadowOffsetX = 1; ovCtx.shadowOffsetY = 1;
+            ovCtx.font = `bold ${el.fontSize}px ${selFont}`;
+            ovCtx.fillStyle = selTextColor;
+            ovCtx.textAlign = 'center'; ovCtx.textBaseline = 'middle';
+            ovCtx.fillText(el.text, el.x + el.w/2, el.y + el.h/2);
+        } else if (el.type === 'logo' && el.img) {
+            // Shadow for printed look
+            ovCtx.shadowColor = 'rgba(0,0,0,0.4)';
+            ovCtx.shadowBlur = 6;
+            ovCtx.shadowOffsetX = 2; ovCtx.shadowOffsetY = 2;
+            ovCtx.drawImage(el.img, el.x, el.y, el.w, el.h);
         }
-        // Selection handles
-        if(activeEl===i){
-            ovCtx.strokeStyle='rgba(0,180,255,0.8)'; ovCtx.lineWidth=2;
-            ovCtx.setLineDash([4,4]); ovCtx.strokeRect(el.x,el.y,el.w,el.h); ovCtx.setLineDash([]);
-            // Resize handles (corners)
-            [[el.x,el.y],[el.x+el.w,el.y],[el.x,el.y+el.h],[el.x+el.w,el.y+el.h]].forEach(([hx,hy])=>{
-                ovCtx.fillStyle='white'; ovCtx.fillRect(hx-HANDLE_SIZE/2,hy-HANDLE_SIZE/2,HANDLE_SIZE,HANDLE_SIZE);
-                ovCtx.strokeStyle='var(--blue,#00B4FF)'; ovCtx.strokeRect(hx-HANDLE_SIZE/2,hy-HANDLE_SIZE/2,HANDLE_SIZE,HANDLE_SIZE);
+        ovCtx.restore();
+
+        // Selection outline + handles
+        if (activeEl === i) {
+            ovCtx.strokeStyle = 'rgba(0,180,255,0.85)'; ovCtx.lineWidth = 1.5;
+            ovCtx.setLineDash([5, 4]); ovCtx.strokeRect(el.x, el.y, el.w, el.h); ovCtx.setLineDash([]);
+            [[el.x,el.y],[el.x+el.w,el.y],[el.x,el.y+el.h],[el.x+el.w,el.y+el.h]].forEach(([hx,hy]) => {
+                ovCtx.fillStyle = 'white'; ovCtx.fillRect(hx-HANDLE/2, hy-HANDLE/2, HANDLE, HANDLE);
+                ovCtx.strokeStyle = '#00B4FF'; ovCtx.lineWidth = 1.5; ovCtx.setLineDash([]);
+                ovCtx.strokeRect(hx-HANDLE/2, hy-HANDLE/2, HANDLE, HANDLE);
             });
         }
     });
 }
 
-function updateOverlay(){
-    const text=document.getElementById('customText').value;
-    const W=overlayCanvas.width;
-    const textEl=elements.find(e=>e.type==='text');
-    if(text){
-        if(!textEl){
-            elements.push({type:'text',text,x:W*0.1,y:W*0.65,w:W*0.8,h:40,fontSize:Math.round(W*0.07)});
-        } else { textEl.text=text; }
-    } else {
-        const idx=elements.findIndex(e=>e.type==='text');
-        if(idx>-1) elements.splice(idx,1);
-    }
-    drawOverlay();
-}
-
 // ── DRAG & RESIZE ──
-function setupDrag(){
-    overlayCanvas.addEventListener('pointerdown',onDown);
-    overlayCanvas.addEventListener('pointermove',onMove);
-    overlayCanvas.addEventListener('pointerup',onUp);
-    overlayCanvas.addEventListener('pointercancel',onUp);
+function setupDrag() {
+    ovCanvas.addEventListener('pointerdown', onDown, {passive:false});
+    ovCanvas.addEventListener('pointermove', onMove, {passive:false});
+    ovCanvas.addEventListener('pointerup', onUp);
+    ovCanvas.addEventListener('pointercancel', onUp);
 }
 
-function getPt(e){
-    const r=overlayCanvas.getBoundingClientRect();
-    const scaleX=overlayCanvas.width/r.width, scaleY=overlayCanvas.height/r.height;
-    return {x:(e.clientX-r.left)*scaleX, y:(e.clientY-r.top)*scaleY};
+function getPt(e) {
+    const r = ovCanvas.getBoundingClientRect();
+    const sx = ovCanvas.width / r.width, sy = ovCanvas.height / r.height;
+    return {x: (e.clientX - r.left) * sx, y: (e.clientY - r.top) * sy};
 }
 
-function hitHandle(el,pt){
-    const corners=[[el.x,el.y,'tl'],[el.x+el.w,el.y,'tr'],[el.x,el.y+el.h,'bl'],[el.x+el.w,el.y+el.h,'br']];
-    for(const [hx,hy,name] of corners){
-        if(Math.abs(pt.x-hx)<HANDLE_SIZE && Math.abs(pt.y-hy)<HANDLE_SIZE) return name;
+function hitHandle(el, pt) {
+    const corners = [[el.x,el.y,'tl'],[el.x+el.w,el.y,'tr'],[el.x,el.y+el.h,'bl'],[el.x+el.w,el.y+el.h,'br']];
+    for (const [hx,hy,n] of corners) {
+        if (Math.abs(pt.x-hx) < HANDLE && Math.abs(pt.y-hy) < HANDLE) return n;
     }
     return null;
 }
 
-function onDown(e){
+function onDown(e) {
     e.preventDefault();
-    const pt=getPt(e);
-    // Check active element first for resize
-    if(activeEl!==null){
-        const el=elements[activeEl];
-        const handle=hitHandle(el,pt);
-        if(handle){ resizeStart={handle,ox:pt.x,oy:pt.y,ex:el.x,ey:el.y,ew:el.w,eh:el.h}; return; }
+    const pt = getPt(e);
+    if (activeEl !== null) {
+        const h = hitHandle(elements[activeEl], pt);
+        if (h) { resizeStart = {h, ox:pt.x, oy:pt.y, ...elements[activeEl], ex:elements[activeEl].x, ey:elements[activeEl].y, ew:elements[activeEl].w, eh:elements[activeEl].h}; return; }
     }
-    // Hit test all elements
-    for(let i=elements.length-1;i>=0;i--){
-        const el=elements[i];
-        if(pt.x>=el.x&&pt.x<=el.x+el.w&&pt.y>=el.y&&pt.y<=el.y+el.h){
-            activeEl=i; dragOffX=pt.x-el.x; dragOffY=pt.y-el.y; el.dragging=true; drawOverlay(); return;
+    for (let i = elements.length-1; i >= 0; i--) {
+        const el = elements[i];
+        if (pt.x >= el.x && pt.x <= el.x+el.w && pt.y >= el.y && pt.y <= el.y+el.h) {
+            activeEl = i; dragOffX = pt.x - el.x; dragOffY = pt.y - el.y; el.dragging = true; drawOverlay(); return;
         }
     }
-    activeEl=null; drawOverlay();
+    activeEl = null; drawOverlay();
 }
 
-function onMove(e){
+function onMove(e) {
     e.preventDefault();
-    const pt=getPt(e);
-    if(resizeStart && activeEl!==null){
-        const el=elements[activeEl];
-        const {handle,ox,oy,ex,ey,ew,eh}=resizeStart;
-        const dx=pt.x-ox, dy=pt.y-oy;
-        if(handle==='br'){el.w=Math.max(30,ew+dx);el.h=Math.max(20,eh+dy);}
-        else if(handle==='tr'){el.w=Math.max(30,ew+dx);el.y=ey+dy;el.h=Math.max(20,eh-dy);}
-        else if(handle==='bl'){el.x=ex+dx;el.w=Math.max(30,ew-dx);el.h=Math.max(20,eh+dy);}
-        else if(handle==='tl'){el.x=ex+dx;el.y=ey+dy;el.w=Math.max(30,ew-dx);el.h=Math.max(20,eh-dy);}
-        if(el.type==='text') el.fontSize=Math.max(10,Math.round(el.h*0.8));
+    const pt = getPt(e);
+    if (resizeStart && activeEl !== null) {
+        const el = elements[activeEl];
+        const {h,ox,oy,ex,ey,ew,eh} = resizeStart;
+        const dx = pt.x-ox, dy = pt.y-oy;
+        if (h==='br'){el.w=Math.max(30,ew+dx);el.h=Math.max(20,eh+dy);}
+        else if (h==='tr'){el.w=Math.max(30,ew+dx);el.y=ey+dy;el.h=Math.max(20,eh-dy);}
+        else if (h==='bl'){el.x=ex+dx;el.w=Math.max(30,ew-dx);el.h=Math.max(20,eh+dy);}
+        else if (h==='tl'){el.x=ex+dx;el.y=ey+dy;el.w=Math.max(30,ew-dx);el.h=Math.max(20,eh-dy);}
+        if (el.type==='text') el.fontSize = Math.max(10, Math.round(el.h * 0.75));
         drawOverlay(); return;
     }
-    if(activeEl!==null){
-        const el=elements[activeEl];
-        if(el.dragging){
-            el.x=pt.x-dragOffX; el.y=pt.y-dragOffY; drawOverlay();
-        }
+    if (activeEl !== null && elements[activeEl]?.dragging) {
+        elements[activeEl].x = pt.x - dragOffX;
+        elements[activeEl].y = pt.y - dragOffY;
+        drawOverlay();
     }
 }
 
-function onUp(e){
-    if(activeEl!==null && elements[activeEl]) elements[activeEl].dragging=false;
-    resizeStart=null;
+function onUp() {
+    if (activeEl !== null && elements[activeEl]) elements[activeEl].dragging = false;
+    resizeStart = null;
 }
 
-// ── FILE HANDLERS ──
-function handleBg(event){
-    const file=event.target.files[0]; if(!file) return;
-    const reader=new FileReader();
-    reader.onload=(e)=>{
-        const img=new Image();
-        img.onload=()=>{bgImage=img;drawBg();document.getElementById('bgUploadArea').style.display='none';document.getElementById('bgPreviewImg').src=e.target.result;document.getElementById('bgPreview').style.display='block';};
-        img.src=e.target.result;
-    };
-    reader.readAsDataURL(file); event.target.value='';
+// ── RENDER TABS ──
+function renderTabs() {
+    document.getElementById('prodTabs').innerHTML = PRODUCTS.map(p =>
+        `<div class="ptab ${p.id===selProd.id?'active':''}" onclick="pickProd('${p.id}')">
+            <span class="ti">${p.icon}</span>${p.label}
+        </div>`).join('');
 }
 
-function removeBg(){bgImage=null;document.getElementById('bgUploadArea').style.display='block';document.getElementById('bgPreview').style.display='none';document.getElementById('bgPreviewImg').src='';drawBg();}
-
-function handleLogo(event){
-    const file=event.target.files[0]; if(!file) return;
-    const reader=new FileReader();
-    reader.onload=(e)=>{
-        const img=new Image();
-        const W=overlayCanvas.width;
-        img.onload=()=>{
-            logoImage=img;
-            const existing=elements.findIndex(el=>el.type==='logo');
-            const logoEl={type:'logo',img,x:W*0.25,y:W*0.2,w:W*0.5,h:W*0.4};
-            if(existing>-1) elements[existing]=logoEl; else elements.push(logoEl);
-            drawOverlay();
-            document.getElementById('logoUploadArea').style.display='none';
-            document.getElementById('logoPreviewImg').src=e.target.result;
-            document.getElementById('logoPreview').style.display='block';
-        };
-        img.src=e.target.result;
-    };
-    reader.readAsDataURL(file); event.target.value='';
+function pickProd(id) {
+    selProd = PRODUCTS.find(p => p.id === id);
+    selColor = selProd.colors[0];
+    selSize = selProd.sizes[0] || '';
+    renderTabs(); renderColors(); renderSizes();
+    updatePrice(); loadMockup();
 }
 
-function removeLogo(){
-    logoImage=null;
-    const idx=elements.findIndex(e=>e.type==='logo'); if(idx>-1) elements.splice(idx,1);
-    document.getElementById('logoUploadArea').style.display='block';
-    document.getElementById('logoPreview').style.display='none';
-    document.getElementById('logoPreviewImg').src='';
+// ── RENDER COLORS ──
+function renderColors() {
+    document.getElementById('colorSwatches').innerHTML = selProd.colors.map(c =>
+        `<div class="cswatch ${c.hex===selColor.hex?'active':''}"
+            style="background:${c.hex};${c.hex==='#ffffff'?'border:2px solid #555;':''}"
+            title="${c.name}"
+            onclick="pickColor('${c.hex}',this,${selProd.colors.indexOf(c)})">
+        </div>`).join('');
+    document.getElementById('colorName').textContent = selColor.name;
+}
+
+function pickColor(hex, el, idx) {
+    selColor = selProd.colors[idx];
+    document.querySelectorAll('.cswatch').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('colorName').textContent = selColor.name;
+    loadMockup();
+}
+
+// ── TEXT COLORS ──
+function renderTextColors() {
+    document.getElementById('textColorRow').innerHTML = TEXT_COLORS.map(c =>
+        `<div class="tcswatch ${c.hex===selTextColor?'active':''}"
+            style="background:${c.hex};${c.hex==='#ffffff'?'border:2px solid #555;':''}"
+            title="${c.name}"
+            onclick="pickTextColor('${c.hex}',this)">
+        </div>`).join('');
+}
+
+function pickTextColor(hex, el) {
+    selTextColor = hex;
+    document.querySelectorAll('.tcswatch').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
     drawOverlay();
 }
 
-function resetCanvas(){elements=[];activeEl=null;bgImage=null;logoImage=null;drawBg();drawOverlay();document.getElementById('customText').value='';document.getElementById('bgUploadArea').style.display='block';document.getElementById('bgPreview').style.display='none';document.getElementById('logoUploadArea').style.display='block';document.getElementById('logoPreview').style.display='none';}
+function selFont(el) {
+    selFont = el.dataset.font;
+    document.querySelectorAll('.font-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    drawOverlay();
+}
+
+// ── SIZES ──
+function renderSizes() {
+    const sec = document.getElementById('sizeSection');
+    const row = document.getElementById('sizeRow');
+    if (!selProd.sizes.length) { sec.style.display = 'none'; return; }
+    sec.style.display = 'block';
+    selSize = selProd.sizes[0];
+    row.innerHTML = selProd.sizes.map(s =>
+        `<div class="s-chip ${s===selSize?'active':''}" onclick="pickSize('${s}',this)">${s}</div>`).join('');
+}
+
+function pickSize(s, el) {
+    selSize = s;
+    document.querySelectorAll('.s-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+}
+
+// ── QTY & PRICE ──
+function changeQty(d) { qty = Math.max(1, qty+d); document.getElementById('qtyDisplay').textContent = qty; updatePrice(); }
+function updatePrice() {
+    const t = selProd.price * qty;
+    document.getElementById('totalPrice').textContent = '₦' + t.toLocaleString();
+    document.getElementById('upfrontAmt').textContent = '₦' + Math.round(t * 0.7).toLocaleString();
+}
+
+// ── TEXT ELEMENT ──
+function updateTextEl() {
+    const text = document.getElementById('customText').value;
+    const W = ovCanvas.width;
+    const idx = elements.findIndex(e => e.type === 'text');
+    if (text) {
+        const da = selProd.designArea;
+        const el = {type:'text', text, x:da.x*W, y:(da.y+da.h*0.55)*W, w:da.w*W, h:Math.round(W*0.09), fontSize:Math.round(W*0.07)};
+        if (idx > -1) { elements[idx] = {...elements[idx], text}; }
+        else { elements.push(el); }
+    } else {
+        if (idx > -1) elements.splice(idx, 1);
+    }
+    drawOverlay();
+}
+
+// ── UPLOADS ──
+function handleBg(event) {
+    const file = event.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const img = new Image();
+        img.onload = () => { bgImage = img; drawBg(); document.getElementById('bgToggleLabel').textContent = '✓ Your product photo loaded'; document.getElementById('bgPreviewImg').src = e.target.result; document.getElementById('bgPreview').style.display = 'block'; };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file); event.target.value = '';
+}
+
+function removeBg() { bgImage = null; document.getElementById('bgToggleLabel').textContent = 'Upload your own shirt/mug/etc photo'; document.getElementById('bgPreview').style.display = 'none'; document.getElementById('bgPreviewImg').src = ''; loadMockup(); }
+
+function handleLogo(event) {
+    const file = event.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const img = new Image();
+        const W = ovCanvas.width;
+        img.onload = () => {
+            logoImage = img;
+            const da = selProd.designArea;
+            const logoEl = {type:'logo', img, x:da.x*W, y:da.y*W, w:da.w*W, h:da.h*W*0.6};
+            const idx = elements.findIndex(el => el.type === 'logo');
+            if (idx > -1) elements[idx] = logoEl; else elements.push(logoEl);
+            drawOverlay();
+            document.getElementById('logoArea').style.display = 'none';
+            document.getElementById('logoPreviewImg').src = e.target.result;
+            document.getElementById('logoPreview').style.display = 'block';
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file); event.target.value = '';
+}
+
+function removeLogo() {
+    logoImage = null;
+    const idx = elements.findIndex(e => e.type === 'logo'); if (idx > -1) elements.splice(idx, 1);
+    document.getElementById('logoArea').style.display = 'block';
+    document.getElementById('logoPreview').style.display = 'none';
+    document.getElementById('logoPreviewImg').src = '';
+    drawOverlay();
+}
+
+function resetAll() {
+    elements = []; activeEl = null; bgImage = null; logoImage = null;
+    document.getElementById('customText').value = '';
+    document.getElementById('bgPreview').style.display = 'none';
+    document.getElementById('bgToggleLabel').textContent = 'Upload your own shirt/mug/etc photo';
+    document.getElementById('logoArea').style.display = 'block';
+    document.getElementById('logoPreview').style.display = 'none';
+    loadMockup(); drawOverlay();
+}
+
+// ── HELPERS ──
+function rRect(ctx, x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+    ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r);
+    ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
+    ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r);
+    ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+}
+
+function shade(hex, pct) {
+    const n = parseInt(hex.replace('#',''), 16);
+    const r = Math.min(255,Math.max(0,(n>>16)+pct));
+    const g = Math.min(255,Math.max(0,((n>>8)&0xff)+pct));
+    const b = Math.min(255,Math.max(0,(n&0xff)+pct));
+    return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
 
 // ── SEND TO ELITE ──
-async function sendToElite(){
-    // Merge canvases
-    const finalCanvas=document.createElement('canvas');
-    finalCanvas.width=bgCanvas.width; finalCanvas.height=bgCanvas.height;
-    const fCtx=finalCanvas.getContext('2d');
-    fCtx.drawImage(bgCanvas,0,0); fCtx.drawImage(overlayCanvas,0,0);
-    const preview=finalCanvas.toDataURL('image/jpeg',0.85);
+async function sendToElite() {
+    const final = document.createElement('canvas');
+    final.width = bgCanvas.width; final.height = bgCanvas.height;
+    const fCtx = final.getContext('2d');
+    fCtx.drawImage(bgCanvas, 0, 0);
+    fCtx.drawImage(ovCanvas, 0, 0);
+    const preview = final.toDataURL('image/jpeg', 0.85);
 
-    const order={
-        product: selProd,
-        text: document.getElementById('customText').value,
-        textColor: selTextColor,
-        font: selFont,
-        size: selSize,
-        qty,
-        total: selProd.price*qty,
-        preview
-    };
+    let uploadedUrl = '';
+    try {
+        const blob = await (await fetch(preview)).blob();
+        const fd = new FormData();
+        fd.append('file', new File([blob], 'mockup.jpg', {type:'image/jpeg'}));
+        const res = await fetch('/api/upload/design', {method:'POST', body:fd});
+        const data = await res.json();
+        if (data.success) uploadedUrl = data.url;
+    } catch {}
 
-    // Upload preview image
-    let uploadedUrl='';
-    try{
-        const blob=await(await fetch(preview)).blob();
-        const fd=new FormData(); fd.append('file',new File([blob],'mockup.jpg',{type:'image/jpeg'}));
-        const res=await fetch('/api/upload/design',{method:'POST',body:fd});
-        const data=await res.json();
-        if(data.success) uploadedUrl=data.url;
-    }catch{}
-
-    // Build message for AI
-    const msg=`I just designed a custom ${selProd.label} in the Design Studio! Here are my details:\n• Product: ${selProd.label}\n• Text: "${order.text||'none'}"\n• Size: ${selSize||'standard'}\n• Quantity: ${qty}\n• Total: ₦${(selProd.price*qty).toLocaleString()}\n\nI'm ready to order. Can you help me complete my order?`;
+    const msg = `I just designed a custom ${selProd.label} in the Design Studio!\n\n• Product: ${selProd.label}\n• Color: ${selColor.name}\n• Text: "${document.getElementById('customText').value || 'none'}"\n• Size: ${selSize || 'standard'}\n• Quantity: ${qty}\n• Total: ₦${(selProd.price * qty).toLocaleString()}\n\nI'm ready to order. Can you help me complete it?`;
 
     sessionStorage.setItem('studioMessage', msg);
     sessionStorage.setItem('studioPreview', uploadedUrl || preview);
-    location.href='/';
+    location.href = '/';
 }
 
-function openWA(){window.open(`https://wa.me/2348088060408?text=${encodeURIComponent('Hello! I just designed a custom product in the Elite Print Studio. Can you help me place an order?')}`,'_blank');}
+function openWA() { window.open(`https://wa.me/2348088060408?text=${encodeURIComponent('Hello! I just designed a custom product in the Elite Print Studio. Can you help me place an order?')}`, '_blank'); }
 </script>
 </body>
 </html>
