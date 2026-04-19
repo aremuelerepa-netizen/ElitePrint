@@ -210,11 +210,11 @@
                 What would you like today?
                 <div class="quick-grid">
                     <div class="qcard qcard-blue" onclick="location.href='/marketplace'">
-                        <div class="qcard-img" id="catalogCardImg">🛍️</div>
+                        <div class="qcard-img" id="catalogCardImg"></div>
                         <div class="qcard-label">Browse Catalog</div>
                     </div>
                     <div class="qcard qcard-gold" onclick="location.href='/studio'">
-                        <div class="qcard-img" id="studioCardImg">🎨</div>
+                        <div class="qcard-img" id="studioCardImg"></div>
                         <div class="qcard-label">Design My Own</div>
                     </div>
                     <div class="qcard qcard-green" onclick="openWA()">
@@ -223,9 +223,9 @@
                     </div>
                 </div>
                 <div class="chip-row">
-                    <div class="chip" onclick="quickMsg('What gift items do you have?')">🎁 Gift ideas</div>
-                    <div class="chip" onclick="quickMsg('What is your turnaround time?')">⏱ Turnaround</div>
-                    <div class="chip" onclick="quickMsg('Do you offer delivery?')">🚚 Delivery</div>
+                    <div class="chip" onclick="quickMsg('What gift items do you have?')">Gift ideas</div>
+                    <div class="chip" onclick="quickMsg('What is your turnaround time?')">Turnaround</div>
+                    <div class="chip" onclick="quickMsg('Do you offer delivery?')"> Delivery</div>
                 </div>
             </div>
         </div>
@@ -374,7 +374,7 @@ async function handleReceipt(event) {
             btn.innerHTML = '<ion-icon name="checkmark-circle-outline"></ion-icon> Receipt uploaded!';
             btn.classList.remove('glow');
             btn.classList.add('uploaded');
-            addUserMsg(`<span style="font-size:11px;opacity:0.8;">📸 Payment receipt uploaded</span><br><img src="${data.url}" style="max-width:100%;border-radius:10px;margin-top:6px;display:block;">`);
+            addUserMsg(`<span style="font-size:11px;opacity:0.8;"> Payment receipt uploaded</span><br><img src="${data.url}" style="max-width:100%;border-radius:10px;margin-top:6px;display:block;">`);
             // Send to AI
             const typing = addTyping();
             const chatRes = await fetch('/chat', {
