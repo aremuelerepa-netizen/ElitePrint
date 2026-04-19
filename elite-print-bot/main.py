@@ -14,7 +14,7 @@ load_dotenv()
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory=".")
 
 # ── Clients ──────────────────────────────────────────────
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
