@@ -244,7 +244,55 @@
             <div class="tab-panel" id="tab-settings">
 
                 <div class="settings-card">
-                    <div class="settings-title">🖼️ Company Logo</div>
+                    <div class="settings-title">👤 About Page</div>
+                    <div class="s-field">
+                        <label class="s-label">Brand Story</label>
+                        <textarea class="s-input" id="brandStory" rows="3" placeholder="Tell your brand story..."></textarea>
+                    </div>
+                    <div class="s-field">
+                        <label class="s-label">Owner Personal Note</label>
+                        <textarea class="s-input" id="ownerNote" rows="2" placeholder="A personal message from you..."></textarea>
+                    </div>
+                    <div class="s-field">
+                        <label class="s-label">Year Started</label>
+                        <input type="text" class="s-input" id="startedYear" placeholder="e.g. 2024">
+                    </div>
+                    <div class="s-field">
+                        <label class="s-label">Owner Photo</label>
+                        <div class="logo-upload" onclick="document.getElementById('ownerPhotoFile').click()">
+                            <ion-icon name="person-circle-outline"></ion-icon>
+                            <p style="font-size:13px;font-weight:600;" id="ownerPhotoLabel">Upload Owner Photo</p>
+                        </div>
+                        <img id="ownerPhotoPreview" src="" alt="" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid var(--blue);display:none;margin-top:10px;">
+                        <input type="file" id="ownerPhotoFile" accept="image/*" onchange="uploadOwnerPhoto(event)">
+                    </div>
+                    <div class="s-field">
+                        <label class="s-label">TikTok Handle</label>
+                        <input type="text" class="s-input" id="tiktokHandle" placeholder="@yourtiktok">
+                    </div>
+                    <div class="s-field">
+                        <label class="s-label">Pinterest Handle</label>
+                        <input type="text" class="s-input" id="pinterestHandle" placeholder="@yourpinterest">
+                    </div>
+                    <div class="s-field">
+                        <label class="s-label">Facebook Page Name / Handle</label>
+                        <input type="text" class="s-input" id="facebookHandle" placeholder="Elite Print Studio">
+                    </div>
+                    <button class="save-btn" onclick="saveAbout()">Save About Page</button>
+                </div>
+
+                <div class="settings-card">
+                    <div class="settings-title">🖼️ Portfolio</div>
+                    <button class="save-btn" style="margin-bottom:12px;background:var(--surface2);color:var(--text);border:1px solid var(--border);" onclick="document.getElementById('portfolioFile').click()">
+                        <ion-icon name="add-circle-outline"></ion-icon> Add Portfolio Photo
+                    </button>
+                    <input type="file" id="portfolioFile" accept="image/*" onchange="uploadPortfolio(event)">
+                    <div class="s-field">
+                        <label class="s-label">Caption for new photo</label>
+                        <input type="text" class="s-input" id="portfolioCaption" placeholder="e.g. Custom mug for birthday gift">
+                    </div>
+                    <div id="portfolioList" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;"></div>
+                </div>
                     <div style="text-align:center;">
                         <img id="logoPreview" src="" alt="Logo" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);display:none;margin:0 auto 12px;">
                         <div class="logo-upload" onclick="document.getElementById('logoFile').click()">
@@ -587,7 +635,73 @@ async function loadSettings(){
         document.getElementById('waNum').value=s.whatsapp_number||'2348088060408';
         document.getElementById('bizAddr').value=s.business_address||'';
         if(s.logo_url){ document.getElementById('logoPreview').src=s.logo_url; document.getElementById('logoPreview').style.display='block'; document.getElementById('logoUploadLabel').textContent='✓ Logo uploaded. Tap to change'; }
+        // About page
+        document.getElementById('brandStory').value=s.about_brand_story||'';
+        document.getElementById('ownerNote').value=s.about_owner_note||'';
+        document.getElementById('startedYear').value=s.about_started_year||'';
+        document.getElementById('tiktokHandle').value=s.tiktok_handle||'';
+        document.getElementById('pinterestHandle').value=s.pinterest_handle||'';
+        document.getElementById('facebookHandle').value=s.facebook_handle||'';
+        if(s.about_owner_photo_url){ document.getElementById('ownerPhotoPreview').src=s.about_owner_photo_url; document.getElementById('ownerPhotoPreview').style.display='block'; document.getElementById('ownerPhotoLabel').textContent='✓ Photo uploaded. Tap to change'; }
     }catch{}
+    loadPortfolio();
+}
+
+async function saveAbout(){
+    await fetch('/api/admin/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        about_brand_story:document.getElementById('brandStory').value,
+        about_owner_note:document.getElementById('ownerNote').value,
+        about_started_year:document.getElementById('startedYear').value,
+        tiktok_handle:document.getElementById('tiktokHandle').value,
+        pinterest_handle:document.getElementById('pinterestHandle').value,
+        facebook_handle:document.getElementById('facebookHandle').value,
+    })});
+    alert('About page saved! ✓');
+}
+
+async function uploadOwnerPhoto(event){
+    const file=event.target.files[0]; if(!file) return;
+    document.getElementById('ownerPhotoLabel').textContent='Uploading...';
+    const fd=new FormData(); fd.append('file',file);
+    const res=await fetch('/api/upload/owner-photo',{method:'POST',body:fd});
+    const data=await res.json();
+    if(data.success){ document.getElementById('ownerPhotoPreview').src=data.url; document.getElementById('ownerPhotoPreview').style.display='block'; document.getElementById('ownerPhotoLabel').textContent='✓ Photo uploaded. Tap to change'; }
+    event.target.value='';
+}
+
+async function loadPortfolio(){
+    try{
+        const res=await fetch('/api/portfolio');
+        const data=await res.json();
+        const list=document.getElementById('portfolioList');
+        if(!data.data?.length){ list.innerHTML='<p style="font-size:11px;color:var(--text-muted);grid-column:1/-1;">No portfolio photos yet.</p>'; return; }
+        list.innerHTML=data.data.map(item=>`
+            <div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--surface2);">
+                <img src="${item.image_url}" style="width:100%;height:100%;object-fit:cover;" alt="${item.caption||''}">
+                <button onclick="delPortfolio('${item.id}')" style="position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:rgba(255,71,87,0.85);color:white;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;">✕</button>
+            </div>`).join('');
+    }catch{}
+}
+
+async function uploadPortfolio(event){
+    const file=event.target.files[0]; if(!file) return;
+    const caption=document.getElementById('portfolioCaption').value.trim();
+    const fd=new FormData(); fd.append('file',file);
+    const upRes=await fetch('/api/upload/portfolio',{method:'POST',body:fd});
+    const upData=await upRes.json();
+    if(upData.success){
+        await fetch('/api/admin/portfolio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image_url:upData.url,caption,is_active:true,sort_order:0})});
+        document.getElementById('portfolioCaption').value='';
+        loadPortfolio();
+        alert('Photo added! ✓');
+    }
+    event.target.value='';
+}
+
+async function delPortfolio(id){
+    if(!confirm('Remove this photo?')) return;
+    await fetch(`/api/admin/portfolio/${id}`,{method:'DELETE'});
+    loadPortfolio();
 }
 
 async function savePromo(){
