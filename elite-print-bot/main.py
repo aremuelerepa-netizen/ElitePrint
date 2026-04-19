@@ -14,14 +14,7 @@ load_dotenv()
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
-
-# 1. Get the absolute path of the directory containing main.py
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# 2. Point to the folder where your HTML files live. 
-# If they are in the root next to main.py, use BASE_DIR.
-# If they are in a folder called 'frontend', use os.path.join(BASE_DIR, "frontend")
-templates = Jinja2Templates(directory=BASE_DIR)
+templates = Jinja2Templates(directory="templates")
 
 # ── Clients ──────────────────────────────────────────────
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
@@ -92,9 +85,9 @@ async def index(request: Request):
 async def marketplace(request: Request):
     return templates.TemplateResponse("marketplace.html", {"request": request})
 
-@app.get("/studio")
-async def studio(request: Request):
-    return templates.TemplateResponse("studio.html", {"request": request})
+@app.get("/about")
+async def about(request: Request):
+    return templates.TemplateResponse("about.html", {"request": request})
 
 @app.get("/order")
 async def order(request: Request):
@@ -112,15 +105,16 @@ async def chat(request: Request):
         user_message = data.get("message", "")
         history = data.get("history", [])
         has_receipt = data.get("has_receipt", False)
-        order_data = data.get("order_data", None)
+        proof_url = data.get("proof_url", "")
+        conversation_context = data.get("conversation_context", {})
 
         system_prompt = build_system_prompt()
-        
-        if has_receipt and order_data:
-            user_message = f"[Customer uploaded payment receipt. Order details: {order_data}] {user_message}"
+
+        if has_receipt:
+            user_message = f"[SYSTEM: Customer just uploaded their payment receipt. Proof URL: {proof_url}. Extract from conversation: customer_name, customer_whatsapp, product ordered, delivery_type, total_amount. Then confirm order warmly.] {user_message}"
 
         messages = [{"role": "system", "content": system_prompt}]
-        for h in history[-8:]:
+        for h in history[-10:]:
             messages.append(h)
         messages.append({"role": "user", "content": user_message})
 
@@ -131,15 +125,61 @@ async def chat(request: Request):
             max_tokens=200
         )
         response = completion.choices[0].message.content
-        
-        # Detect if AI is asking for payment
-        payment_trigger = any(x in response.lower() for x in ["opay", "8088060408", "upload", "receipt", "transfer"])
-        order_trigger = any(x in response.lower() for x in ["your name", "whatsapp number", "pickup or delivery", "delivery address"])
-        
+
+        # Auto-create order when receipt is uploaded
+        order_number = None
+        if has_receipt and proof_url and conversation_context:
+            try:
+                ctx = conversation_context
+                total = float(ctx.get("total_amount", 0))
+                amount_paid = round(total * 0.7, 2)
+                balance_due = round(total * 0.3, 2)
+                order_number = "EPS-" + str(uuid.uuid4())[:8].upper()
+
+                order_data = {
+                    "order_number": order_number,
+                    "customer_name": ctx.get("customer_name", "Unknown"),
+                    "customer_whatsapp": ctx.get("customer_whatsapp", ""),
+                    "delivery_type": ctx.get("delivery_type", "pickup"),
+                    "delivery_address": ctx.get("delivery_address", ""),
+                    "total_amount": total,
+                    "amount_paid": amount_paid,
+                    "balance_due": balance_due,
+                    "payment_proof_url": proof_url,
+                    "payment_status": "pending",
+                    "order_status": "pending",
+                    "source": "ai",
+                    "notes": ctx.get("notes", "")
+                }
+                order_res = supabase.table("orders").insert(order_data).execute()
+                order_id = order_res.data[0]["id"]
+
+                items = ctx.get("items", [])
+                if items:
+                    for item in items:
+                        item["order_id"] = order_id
+                        supabase.table("order_items").insert(item).execute()
+                elif ctx.get("product_name"):
+                    supabase.table("order_items").insert({
+                        "order_id": order_id,
+                        "product_name": ctx.get("product_name", "Custom Order"),
+                        "quantity": int(ctx.get("quantity", 1)),
+                        "unit_price": total / int(ctx.get("quantity", 1)),
+                        "customization_text": ctx.get("customization_text", ""),
+                        "mockup_preview_url": ctx.get("mockup_url", "")
+                    }).execute()
+            except Exception as e:
+                print(f"Order creation error: {e}")
+
+        # Detect triggers
+        payment_trigger = any(x in response.lower() for x in ["opay", "8088060408", "upload", "receipt", "transfer", "payment"])
+        order_trigger = any(x in response.lower() for x in ["your name", "whatsapp number", "pickup or delivery"])
+
         return {
             "response": response,
             "payment_trigger": payment_trigger,
-            "order_trigger": order_trigger
+            "order_trigger": order_trigger,
+            "order_number": order_number
         }
     except Exception as e:
         return {"response": "Service temporarily unavailable. Please try again.", "payment_trigger": False, "order_trigger": False}
@@ -220,15 +260,25 @@ async def clear_cart(session_id: str):
 async def create_order(request: Request):
     try:
         data = await request.json()
+
+        customer_name = str(data.get("customer_name", "")).strip()
+        customer_whatsapp = str(data.get("customer_whatsapp", "")).strip()
+        if not customer_name:
+            return {"success": False, "error": "Customer name is required"}
+        if not customer_whatsapp:
+            return {"success": False, "error": "WhatsApp number is required"}
+
         order_number = "EPS-" + str(uuid.uuid4())[:8].upper()
         total = float(data.get("total_amount", 0))
+        if total <= 0:
+            return {"success": False, "error": "Invalid order amount"}
         amount_paid = round(total * 0.7, 2)
         balance_due = round(total * 0.3, 2)
 
-        order_data = {
+        order_payload = {
             "order_number": order_number,
-            "customer_name": data.get("customer_name"),
-            "customer_whatsapp": data.get("customer_whatsapp"),
+            "customer_name": customer_name,
+            "customer_whatsapp": customer_whatsapp,
             "delivery_type": data.get("delivery_type", "pickup"),
             "delivery_address": data.get("delivery_address", ""),
             "total_amount": total,
@@ -237,17 +287,22 @@ async def create_order(request: Request):
             "payment_proof_url": data.get("payment_proof_url", ""),
             "payment_status": "pending",
             "order_status": "pending",
-            "source": data.get("source", "ai"),
+            "source": data.get("source", "catalog"),
             "notes": data.get("notes", "")
         }
 
-        order_res = supabase.table("orders").insert(order_data).execute()
+        order_res = supabase.table("orders").insert(order_payload).execute()
+        if not order_res.data:
+            return {"success": False, "error": "Database error — order not saved"}
         order_id = order_res.data[0]["id"]
 
         items = data.get("items", [])
         for item in items:
-            item["order_id"] = order_id
-            supabase.table("order_items").insert(item).execute()
+            try:
+                item["order_id"] = order_id
+                supabase.table("order_items").insert(item).execute()
+            except Exception as ie:
+                print(f"Item insert error: {ie}")
 
         return {"success": True, "order_number": order_number, "order_id": order_id, "amount_due": amount_paid}
     except Exception as e:
@@ -409,6 +464,61 @@ async def get_stats():
         }
     except Exception as e:
         return {"total": 0, "today": 0, "pending": 0, "in_production": 0, "done": 0, "week_revenue": 0}
+
+# ── Portfolio API ─────────────────────────────────────────
+@app.get("/api/portfolio")
+async def get_portfolio():
+    try:
+        res = supabase.table("portfolio_items").select("*").eq("is_active", True).order("sort_order").execute()
+        return {"data": res.data}
+    except Exception as e:
+        return {"data": [], "error": str(e)}
+
+@app.post("/api/admin/portfolio")
+async def add_portfolio_item(request: Request):
+    try:
+        data = await request.json()
+        res = supabase.table("portfolio_items").insert(data).execute()
+        return {"success": True, "data": res.data}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.delete("/api/admin/portfolio/{item_id}")
+async def delete_portfolio_item(item_id: str):
+    try:
+        supabase.table("portfolio_items").delete().eq("id", item_id).execute()
+        return {"success": True}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.post("/api/upload/portfolio")
+async def upload_portfolio_image(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        file_ext = file.filename.split(".")[-1]
+        file_name = f"portfolio/{uuid.uuid4()}.{file_ext}"
+        supabase.storage.from_("portfolio-images").upload(file_name, contents, {"content-type": file.content_type})
+        url = supabase.storage.from_("portfolio-images").get_public_url(file_name)
+        return {"success": True, "url": url}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.post("/api/upload/owner-photo")
+async def upload_owner_photo(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        file_ext = file.filename.split(".")[-1]
+        file_name = f"owner.{file_ext}"
+        try:
+            supabase.storage.from_("company-assets").remove([file_name])
+        except:
+            pass
+        supabase.storage.from_("company-assets").upload(file_name, contents, {"content-type": file.content_type})
+        url = supabase.storage.from_("company-assets").get_public_url(file_name)
+        supabase.table("settings").update({"value": url}).eq("key", "about_owner_photo_url").execute()
+        return {"success": True, "url": url}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
