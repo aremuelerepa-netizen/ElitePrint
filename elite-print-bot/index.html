@@ -138,11 +138,12 @@
         .input-row { display: flex; align-items: center; gap: 8px; }
         .attach-btn { width: 40px; height: 40px; border-radius: 11px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 21px; cursor: pointer; flex-shrink: 0; transition: all 0.2s; }
         .attach-btn:hover { border-color: var(--blue); color: var(--blue); }
-        .input-box { flex: 1; display: flex; align-items: center; background: var(--surface); border: 1.5px solid var(--border); border-radius: 22px; padding: 0 13px; transition: border-color 0.2s; }
+        .input-box { flex: 1; display: flex; align-items: flex-end; background: var(--surface); border: 1.5px solid var(--border); border-radius: 22px; padding: 0 13px; transition: border-color 0.2s; }
         .input-box:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,180,255,0.07); }
-        .input-box input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-size: 13.5px; font-weight: 500; padding: 11px 0; font-family: 'Space Grotesk', sans-serif; }
-        .input-box input::placeholder { color: var(--text-muted); font-weight: 400; }
-        .send-btn { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--blue2), var(--blue)); color: white; border: none; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 17px; box-shadow: 0 4px 14px rgba(0,180,255,0.3); transition: transform 0.15s; }
+        .input-box textarea { flex: 1; background: none; border: none; outline: none; color: var(--text); font-size: 13.5px; font-weight: 500; padding: 11px 0; font-family: 'Space Grotesk', sans-serif; resize: none; line-height: 1.45; max-height: 100px; overflow-y: auto; scrollbar-width: none; rows: 1; }
+        .input-box textarea::-webkit-scrollbar { display: none; }
+        .input-box textarea::placeholder { color: var(--text-muted); font-weight: 400; }
+        .send-btn { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--blue2), var(--blue)); color: white; border: none; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 17px; box-shadow: 0 4px 14px rgba(0,180,255,0.3); transition: transform 0.15s; align-self: flex-end; margin-bottom: 4px; }
         .send-btn:active { transform: scale(0.88); }
 
         input[type="file"] { display: none; }
@@ -246,7 +247,7 @@
                 <ion-icon name="attach-outline"></ion-icon>
             </div>
             <div class="input-box">
-                <input type="text" id="userInput" placeholder="Message Elite Studio..." autocomplete="off">
+                <textarea id="userInput" placeholder="Message Elite Studio..." autocomplete="off" rows="1"></textarea>
             </div>
             <button class="send-btn" onclick="sendMessage()">
                 <ion-icon name="send"></ion-icon>
@@ -326,9 +327,10 @@ async function sendMessage() {
     const input = document.getElementById('userInput');
     const text = input.value.trim();
     if (!text) return;
-    addUserMsg(text);
+    addUserMsg(text.replace(/\n/g, '<br>'));
     history.push({ role: 'user', content: text });
     input.value = '';
+    input.style.height = 'auto';
     const typing = addTyping();
     try {
         const res = await fetch('/chat', {
@@ -428,7 +430,13 @@ window.onload = () => {
     }
 };
 
-document.getElementById('userInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendMessage(); } });
+// Auto-resize textarea as user types
+const userInput = document.getElementById('userInput');
+userInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+});
+// Enter = new line only. Send button sends.
 </script>
 </body>
 </html>
