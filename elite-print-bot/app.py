@@ -28,9 +28,9 @@ app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10MB upload limit
 # Ensure these keys are set in your Render Environment Variables
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY")
-SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY")
+SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_KEY")
 STORAGE_BUCKET = os.environ.get("STORAGE_BUCKET", "product-images")
-WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "2348012345678")
+WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "2348088060408")
 
 # Initialize Clients
 supabase_public: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
