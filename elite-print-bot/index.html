@@ -1,176 +1,259 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FrameHaus — Premium Custom Framing & Prints</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="/static/css/style.css"/>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>FrameHaus — Premium Custom Framing & Prints</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+    <style>
+        /* --- Premium Dark & Gold Theme --- */
+        :root {
+            --bg: #0a0a0a;
+            --card-bg: #141414;
+            --gold: #d4af37;
+            --gold-hover: #f1c40f;
+            --text: #f4f4f4;
+            --text-dim: #a0a0a0;
+            --border: #2a2a2a;
+            --glass: rgba(20, 20, 20, 0.9);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Jost', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .logo-main { font-family: 'Cormorant Garamond', serif; font-weight: 600; }
+
+        /* --- Header --- */
+        .site-header {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            padding: 1.5rem 0; transition: 0.4s; background: transparent;
+        }
+        .site-header.scrolled {
+            background: var(--glass); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); padding: 0.8rem 0;
+        }
+        .header-inner {
+            max-width: 1400px; margin: 0 auto; padding: 0 5%;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo-mark { display: flex; align-items: center; gap: 0.8rem; }
+        .logo-icon { color: var(--gold); font-size: 1.5rem; }
+        .logo-main { font-size: 1.4rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text); }
+        .logo-sub { display: block; font-size: 0.6rem; color: var(--gold); letter-spacing: 1px; }
+
+        /* --- Hero --- */
+        .hero {
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            position: relative; text-align: center; padding: 0 5%;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
+        }
+        .hero-title { font-size: clamp(3rem, 8vw, 5.5rem); line-height: 1.1; margin-bottom: 1.5rem; }
+        .hero-title em { color: var(--gold); font-style: italic; }
+        .hero-body { max-width: 600px; color: var(--text-dim); margin-bottom: 2.5rem; font-size: 1.1rem; }
+
+        /* --- Buttons --- */
+        .btn {
+            display: inline-block; padding: 1rem 2rem; border-radius: 2px;
+            text-decoration: none; font-weight: 500; font-size: 0.9rem;
+            transition: 0.3s; cursor: pointer; border: none; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn--gold { background: var(--gold); color: #000; }
+        .btn--gold:hover { background: var(--gold-hover); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2); }
+        .btn--ghost { border: 1px solid var(--gold); color: var(--gold); background: transparent; }
+        .btn--full { width: 100%; margin-top: 1rem; }
+
+        /* --- Product Grid --- */
+        .container { max-width: 1400px; margin: 0 auto; padding: 6rem 5%; }
+        .section-header { text-align: center; margin-bottom: 4rem; }
+        .section-eyebrow { color: var(--gold); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 3px; }
+        .product-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2.5rem;
+        }
+        .product-card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            transition: 0.4s ease; overflow: hidden;
+        }
+        .product-card:hover { border-color: var(--gold); transform: translateY(-8px); }
+        .product-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; filter: grayscale(20%); transition: 0.5s; }
+        .product-card:hover .product-img { filter: grayscale(0%); transform: scale(1.05); }
+        .product-info { padding: 1.5rem; }
+        .product-price { color: var(--gold); font-weight: 600; font-size: 1.2rem; margin: 0.5rem 0; }
+
+        /* --- Cart Sidebar --- */
+        .cart-sidebar {
+            position: fixed; right: -400px; top: 0; width: 400px; height: 100%;
+            background: #0d0d0d; border-left: 1px solid var(--border);
+            z-index: 2000; transition: 0.5s cubic-bezier(0.7, 0, 0.3, 1);
+            padding: 2.5rem; display: flex; flex-direction: column;
+        }
+        .cart-sidebar.open { right: 0; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.8rem; }
+        .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); opacity: 0; visibility: hidden; z-index: 1999; transition: 0.3s; }
+        .cart-overlay.show { opacity: 1; visibility: visible; }
+
+        @media (max-width: 768px) { .cart-sidebar { width: 100%; right: -100%; } }
+    </style>
 </head>
 <body>
 
 <header class="site-header" id="siteHeader">
-  <div class="header-inner">
-    <div class="logo-mark">
-      <span class="logo-icon">◈</span>
-      <div class="logo-text">
-        <span class="logo-main">FrameHaus</span>
-        <span class="logo-sub">Premium Printing & Framing</span>
-      </div>
+    <div class="header-inner">
+        <div class="logo-mark">
+            <span class="logo-icon">◈</span>
+            <div class="logo-text">
+                <span class="logo-main">FrameHaus</span>
+                <span class="logo-sub">Premium Printing</span>
+            </div>
+        </div>
+        <nav class="main-nav">
+            <button class="btn btn--ghost" id="cartBtn" style="padding: 0.5rem 1rem;">
+                Selection (<span id="cartCount">0</span>)
+            </button>
+        </nav>
     </div>
-    <nav class="main-nav" id="mainNav">
-      <a href="#catalog" class="nav-link">Catalog</a>
-      <a href="#about" class="nav-link">About</a>
-      <button class="cart-btn" id="cartBtn" aria-label="View cart">
-        <span class="cart-icon">◉</span>
-        <span class="cart-count" id="cartCount">0</span>
-      </button>
-    </nav>
-    <button class="hamburger" id="hamburger" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
 </header>
 
-<section class="hero" id="hero">
-  <div class="hero-bg">
-    <div class="hero-grain"></div>
-    <div class="hero-orb hero-orb--1"></div>
-    <div class="hero-orb hero-orb--2"></div>
-  </div>
-  <div class="hero-content">
-    <p class="hero-eyebrow">Ibadan's Premier Studio</p>
-    <h1 class="hero-title">
-      <span class="line-1">Art That</span>
-      <span class="line-2"><em>Elevates</em></span>
-      <span class="line-3">Your Space</span>
-    </h1>
-    <p class="hero-body">Custom frames, luxury canvas prints & premium photo finishing — crafted with precision, ordered in seconds via WhatsApp.</p>
-    <div class="hero-cta">
-      <a href="#catalog" class="btn btn--gold">Browse Collection</a>
-      <a href="https://wa.me/{{ whatsapp_number }}" target="_blank" class="btn btn--ghost">Chat With Us ↗</a>
+<section class="hero">
+    <div class="hero-content">
+        <p class="section-eyebrow">Ibadan's Finest Studio</p>
+        <h1 class="hero-title">Art That <em>Elevates</em></h1>
+        <p class="hero-body">Handcrafted frames and museum-grade prints. Built with precision, ordered via WhatsApp.</p>
+        <div class="hero-cta">
+            <a href="#catalog" class="btn btn--gold">Browse Collection</a>
+        </div>
     </div>
-    <div class="hero-stats">
-      <div class="stat"><span class="stat-n">500+</span><span class="stat-l">Orders Delivered</span></div>
-      <div class="stat-div"></div>
-      <div class="stat"><span class="stat-n">48h</span><span class="stat-l">Turnaround</span></div>
-      <div class="stat-div"></div>
-      <div class="stat"><span class="stat-n">100%</span><span class="stat-l">Custom Made</span></div>
-    </div>
-  </div>
-  <div class="hero-scroll-hint">scroll ↓</div>
 </section>
 
 <section class="catalog-section" id="catalog">
-  <div class="container">
-    <div class="section-header">
-      <p class="section-eyebrow">Our Collection</p>
-      <h2 class="section-title">Select Your Piece</h2>
-      <p class="section-sub">Choose items to build your order — we'll connect via WhatsApp to finalise details.</p>
-    </div>
-    <div class="filter-bar" id="filterBar">
-      <button class="filter-btn active" data-category="All">All</button>
-      {% for cat in categories %}
-      <button class="filter-btn" data-category="{{ cat }}">{{ cat }}</button>
-      {% endfor %}
-    </div>
-    <div class="search-bar">
-      <span class="search-icon">⌕</span>
-      <input type="text" id="searchInput" placeholder="Search products…" autocomplete="off"/>
-    </div>
-    <div class="product-grid" id="productGrid">
-      {% for i in range(6) %}
-      <div class="product-card skeleton-card">
-        <div class="skeleton skeleton-img"></div>
-        <div class="skeleton-body">
-          <div class="skeleton skeleton-line skeleton-line--title"></div>
-          <div class="skeleton skeleton-line skeleton-line--sub"></div>
-          <div class="skeleton skeleton-line skeleton-line--price"></div>
+    <div class="container">
+        <div class="section-header">
+            <p class="section-eyebrow">The Catalog</p>
+            <h2>Select Your Masterpiece</h2>
         </div>
-      </div>
-      {% endfor %}
+        <div class="product-grid" id="productGrid">
+            <!-- Products injected by JS -->
+        </div>
     </div>
-    <div class="empty-state" id="emptyState" style="display:none;">
-      <span class="empty-icon">◎</span>
-      <p>No products found in this category.</p>
-    </div>
-  </div>
 </section>
 
-<section class="about-strip" id="about">
-  <div class="container about-inner">
-    <div class="about-copy">
-      <p class="section-eyebrow">Why FrameHaus</p>
-      <h2 class="about-title">Precision. Luxury. <em>Delivered.</em></h2>
-      <p>Every print and frame is produced in our Ibadan studio using archival inks, premium substrates, and handcrafted wooden mouldings.</p>
-      <a href="https://wa.me/{{ whatsapp_number }}" target="_blank" class="btn btn--gold">Start a Custom Order ↗</a>
+<aside class="cart-sidebar" id="cartSidebar">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
+        <h3>Your Selection</h3>
+        <button id="cartClose" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;">✕</button>
     </div>
-    <div class="about-features">
-      <div class="feat"><span class="feat-icon">◈</span><div><strong>Archival Quality</strong><p>Inks rated 100+ years fade-resistance</p></div></div>
-      <div class="feat"><span class="feat-icon">◈</span><div><strong>Bespoke Sizing</strong><p>Any dimension, any substrate</p></div></div>
-      <div class="feat"><span class="feat-icon">◈</span><div><strong>Express Delivery</strong><p>Ibadan same-day, nationwide 3–5 days</p></div></div>
-      <div class="feat"><span class="feat-icon">◈</span><div><strong>WhatsApp Orders</strong><p>Direct line, instant confirmation</p></div></div>
+    <div id="cartItems" style="flex-grow:1; overflow-y:auto;">
+        <p style="color:var(--text-dim);">Your selection is empty.</p>
     </div>
-  </div>
-</section>
-
-<aside class="cart-sidebar" id="cartSidebar" aria-hidden="true">
-  <div class="cart-header">
-    <h3>Your Selection</h3>
-    <button class="cart-close" id="cartClose">✕</button>
-  </div>
-  <div class="cart-items" id="cartItems">
-    <p class="cart-empty">Your selection is empty.</p>
-  </div>
-  <div class="cart-footer" id="cartFooter" style="display:none;">
-    <div class="cart-total">
-      <span>Total</span>
-      <span id="cartTotal">₦0</span>
+    <div id="cartFooter" style="display:none; border-top:1px solid var(--border); pt-1.5rem;">
+        <div style="display:flex; justify-content:space-between; margin: 1rem 0; font-size:1.2rem;">
+            <span>Total:</span>
+            <span id="cartTotal" style="color:var(--gold);">₦0</span>
+        </div>
+        <button class="btn btn--gold btn--full" id="whatsappOrderBtn">Order via WhatsApp</button>
     </div>
-    <button class="btn btn--gold btn--full" id="whatsappOrderBtn">
-      <span class="wa-icon">📲</span> Order via WhatsApp
-    </button>
-    <button class="btn btn--ghost btn--full" id="clearCartBtn">Clear Selection</button>
-  </div>
 </aside>
 <div class="cart-overlay" id="cartOverlay"></div>
 
-<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-hidden="true">
-  <div class="modal-box" id="modalBox">
-    <button class="modal-close" id="modalClose">✕</button>
-    <div class="modal-img-wrap">
-      <img id="modalImg" src="" alt="" loading="lazy"/>
-      <span class="modal-badge" id="modalBadge"></span>
-    </div>
-    <div class="modal-info">
-      <p class="modal-category" id="modalCategory"></p>
-      <h2 class="modal-name" id="modalName"></h2>
-      <p class="modal-desc" id="modalDesc"></p>
-      <div class="modal-price-row">
-        <span class="modal-price" id="modalPrice"></span>
-        <span class="modal-stock" id="modalStock"></span>
-      </div>
-      <button class="btn btn--gold btn--full" id="modalAddBtn">Add to Selection</button>
-    </div>
-  </div>
-</div>
+<script>
+    window.WHATSAPP_NUMBER = "{{ whatsapp_number }}";
+    let cart = JSON.parse(localStorage.getItem('framehaus_cart')) || [];
 
-<div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+    // --- UI Elements ---
+    const productGrid = document.getElementById('productGrid');
+    const cartSidebar = document.getElementById('cartSidebar');
+    const cartOverlay = document.getElementById('cartOverlay');
 
-<footer class="site-footer">
-  <div class="footer-inner">
-    <div class="footer-logo"><span class="logo-icon">◈</span> FrameHaus</div>
-    <p class="footer-tagline">Crafting memories worth framing.</p>
-    <div class="footer-links">
-      <a href="https://wa.me/{{ whatsapp_number }}" target="_blank">WhatsApp</a>
-      <a href="/admin">Admin</a>
-    </div>
-    <p class="footer-copy">© 2025 FrameHaus · Ibadan, Nigeria</p>
-  </div>
-</footer>
+    // --- Load Products ---
+    async function loadProducts() {
+        try {
+            const res = await fetch('/api/products');
+            const products = await res.json();
+            productGrid.innerHTML = products.map(p => `
+                <div class="product-card">
+                    <img src="${p.image_url || 'https://via.placeholder.com/400x400?text=Premium+Frame'}" class="product-img">
+                    <div class="product-info">
+                        <p class="section-eyebrow" style="font-size:0.6rem;">${p.category}</p>
+                        <h3>${p.name}</h3>
+                        <p class="product-price">₦${Number(p.price).toLocaleString()}</p>
+                        <button class="btn btn--gold btn--full" onclick="addToCart(${p.id}, '${p.name}', ${p.price})">Add to Selection</button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) { console.error("Error loading products:", e); }
+    }
 
-<script>window.WHATSAPP_NUMBER = "{{ whatsapp_number }}";</script>
-<script src="/static/js/catalog.js"></script>
+    // --- Cart Logic ---
+    window.addToCart = (id, name, price) => {
+        cart.push({ id, name, price });
+        updateUI();
+        cartSidebar.classList.add('open');
+        cartOverlay.classList.add('show');
+    };
+
+    window.removeFromCart = (idx) => {
+        cart.splice(idx, 1);
+        updateUI();
+    };
+
+    function updateUI() {
+        localStorage.setItem('framehaus_cart', JSON.stringify(cart));
+        document.getElementById('cartCount').innerText = cart.length;
+        const itemsDiv = document.getElementById('cartItems');
+        const footer = document.getElementById('cartFooter');
+        
+        if (cart.length === 0) {
+            itemsDiv.innerHTML = '<p style="color:var(--text-dim);">Your selection is empty.</p>';
+            footer.style.display = 'none';
+        } else {
+            footer.style.display = 'block';
+            let total = 0;
+            itemsDiv.innerHTML = cart.map((item, idx) => {
+                total += Number(item.price);
+                return `
+                    <div class="cart-item">
+                        <div>
+                            <p><strong>${item.name}</strong></p>
+                            <p style="color:var(--gold); font-size:0.9rem;">₦${Number(item.price).toLocaleString()}</p>
+                        </div>
+                        <button onclick="removeFromCart(${idx})" style="background:none; border:none; color:#ff4444; cursor:pointer;">✕</button>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('cartTotal').innerText = `₦${total.toLocaleString()}`;
+        }
+    }
+
+    // --- WhatsApp Order ---
+    document.getElementById('whatsappOrderBtn').onclick = () => {
+        let msg = "Hello FrameHaus! I'd like to order:\n\n";
+        cart.forEach((item, i) => msg += `${i+1}. ${item.name} (₦${Number(item.price).toLocaleString()})\n`);
+        msg += `\n*Total: ${document.getElementById('cartTotal').innerText}*`;
+        window.open(`https://wa.me/${window.WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    // --- Sidebar Controls ---
+    document.getElementById('cartBtn').onclick = () => { cartSidebar.classList.add('open'); cartOverlay.classList.add('show'); };
+    document.getElementById('cartClose').onclick = () => { cartSidebar.classList.remove('open'); cartOverlay.classList.remove('show'); };
+    cartOverlay.onclick = document.getElementById('cartClose').onclick;
+
+    // --- Sticky Header ---
+    window.addEventListener('scroll', () => {
+        document.getElementById('siteHeader').classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    loadProducts();
+    updateUI();
+</script>
 </body>
 </html>
