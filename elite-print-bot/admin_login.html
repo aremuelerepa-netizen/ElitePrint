@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login — FrameHaus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  <link rel="stylesheet" href="/static/css/admin.css"/>
+</head>
+<body class="admin-body login-page">
+<div class="login-wrap">
+  <div class="login-brand">
+    <span class="logo-icon">◈</span>
+    <h1>FrameHaus</h1>
+    <p>Admin Portal</p>
+  </div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}{% for category, message in messages %}
+      <div class="flash flash--{{ category }}">{{ message }}</div>
+    {% endfor %}{% endif %}
+  {% endwith %}
+  <form class="login-form" method="POST" action="/admin/login">
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" required placeholder="admin@framehaus.ng"/>
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required placeholder="••••••••"/>
+    </div>
+    <button type="submit" class="btn btn--gold btn--full">Sign In →</button>
+  </form>
+  <a href="/" class="login-back">← Back to Catalog</a>
+</div>
+</body>
+</html>
