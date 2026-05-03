@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — FrameHaus Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  <link rel="stylesheet" href="/static/css/admin.css"/>
+</head>
+<body class="admin-body">
+
+<aside class="admin-sidebar">
+  <div class="admin-brand">
+    <span class="logo-icon">◈</span>
+    <div>
+      <span class="admin-brand-name">FrameHaus</span>
+      <span class="admin-brand-sub">Control Panel</span>
+    </div>
+  </div>
+  <nav class="admin-nav">
+    <a href="#products" class="admin-nav-link active">◻ Products</a>
+    <a href="/" target="_blank" class="admin-nav-link">◻ View Catalog ↗</a>
+  </nav>
+  <div class="admin-user">
+    <span class="admin-user-email">{{ admin_email }}</span>
+    <a href="/admin/logout" class="logout-link">Sign Out</a>
+  </div>
+</aside>
+
+<main class="admin-main">
+  <div class="stats-bar">
+    <div class="stat-card"><span class="stat-card-n">{{ stats.total }}</span><span class="stat-card-l">Total Products</span></div>
+    <div class="stat-card"><span class="stat-card-n">{{ stats.active }}</span><span class="stat-card-l">Active</span></div>
+    <div class="stat-card"><span class="stat-card-n stat-card-n--warn">{{ stats.out_of_stock }}</span><span class="stat-card-l">Out of Stock</span></div>
+    <div class="stat-card"><span class="stat-card-n">{{ stats.categories }}</span><span class="stat-card-l">Categories</span></div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}{% for category, message in messages %}
+      <div class="flash flash--{{ category }}">{{ message }}</div>
+    {% endfor %}{% endif %}
+  {% endwith %}
+
+  <div class="section-toolbar" id="products">
+    <h2 class="admin-section-title">Products</h2>
+    <button class="btn btn--gold" id="openAddModal">+ Add Product</button>
+  </div>
+
+  <div class="table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Active</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in products %}
+        <tr data-id="{{ p.id }}">
+          <td>
+            {% if p.image_url %}
+              <img src="{{ p.image_url }}" class="table-thumb" alt="{{ p.name }}" loading="lazy"/>
+            {% else %}
+              <div class="table-thumb table-thumb--empty">◎</div>
+            {% endif %}
+          </td>
+          <td class="td-name">{{ p.name }}</td>
+          <td><span class="badge">{{ p.category }}</span></td>
+          <td class="td-price">₦{{ "{:,.0f}".format(p.price) }}</td>
+          <td>
+            <label class="toggle-label">
+              <input type="checkbox" class="stock-toggle" data-id="{{ p.id }}" {% if p.in_stock %}checked{% endif %}/>
+              <span class="toggle-slider"></span>
+            </label>
+          </td>
+          <td>
+            <span class="status-dot {% if p.active %}status-dot--on{% else %}status-dot--off{% endif %}">
+              {% if p.active %}Active{% else %}Hidden{% endif %}
+            </span>
+          </td>
+          <td class="td-actions">
+            <button class="btn-icon btn-edit" data-product='{{ p | tojson }}' title="Edit">✎</button>
+            <button class="btn-icon btn-delete" data-id="{{ p.id }}" title="Delete">✕</button>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="td-empty">No products yet. Add your first one!</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<div class="modal-overlay" id="productModalOverlay" aria-hidden="true">
+  <div class="modal-box modal-box--admin" id="productModal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Add New Product</h3>
+      <button class="modal-close" id="closeProductModal">✕</button>
+    </div>
+    <form id="productForm" enctype="multipart/form-data">
+      <input type="hidden" id="productId" name="product_id" value=""/>
+      <div class="form-grid">
+        <div class="form-group form-group--full">
+          <label>Product Image</label>
+          <div class="img-upload-area" id="imgUploadArea">
+            <img id="imgPreview" src="" alt="" style="display:none;"/>
+            <div class="img-upload-placeholder" id="imgPlaceholder">
+              <span>◈</span>
+              <p>Click or drag to upload<br><small>JPG, PNG, WEBP · max 10MB</small></p>
+            </div>
+            <input type="file" id="imageInput" name="image" accept=".jpg,.jpeg,.png,.webp"
+                   style="position:absolute;inset:0;opacity:0;cursor:pointer;"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="fName">Product Name *</label>
+          <input type="text" id="fName" name="name" required placeholder="e.g. Walnut Shadow Box Frame"/>
+        </div>
+        <div class="form-group">
+          <label for="fCategory">Category *</label>
+          <select id="fCategory" name="category" required>
+            <option value="">Select category…</option>
+            {% for cat in categories %}
+            <option value="{{ cat }}">{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="fPrice">Price (₦) *</label>
+          <input type="number" id="fPrice" name="price" required min="0" step="50" placeholder="15000"/>
+        </div>
+        <div class="form-group form-group--checks">
+          <label class="checkbox-label">
+            <input type="checkbox" name="in_stock" id="fStock" checked/><span>In Stock</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" name="active" id="fActive" checked/><span>Visible on Catalog</span>
+          </label>
+        </div>
+        <div class="form-group form-group--full">
+          <label for="fDesc">Description</label>
+          <textarea id="fDesc" name="description" rows="3" placeholder="Materials, dimensions, finish options…"></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn--ghost" id="cancelProductModal">Cancel</button>
+        <button type="submit" class="btn btn--gold" id="submitProductBtn">Save Product</button>
+      </div>
+      <div class="form-feedback" id="formFeedback"></div>
+    </form>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay" style="display:none;">
+  <div class="confirm-box">
+    <p>Delete this product permanently?<br><small>This also removes the image from storage.</small></p>
+    <div class="confirm-actions">
+      <button class="btn btn--ghost" id="confirmNo">Cancel</button>
+      <button class="btn btn--danger" id="confirmYes">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/admin.js"></script>
+</body>
+</html>
