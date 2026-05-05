@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>About — Elite Print Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <style>
+        :root{--gold:#F5C842;--gold2:#E8A800;--blue:#00B4FF;--blue2:#0090D4;--black:#0A0A0A;--dark:#0f0f0f;--surface:#171717;--surface2:#202020;--border:#282828;--text:#F0EEF8;--text-muted:#666;--green:#00D068;}
+        *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+        body{font-family:'Space Grotesk',sans-serif;background:var(--dark);color:var(--text);min-height:100dvh;overflow-x:hidden;}
+        .app{max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;}
+
+        .header{position:sticky;top:0;z-index:100;background:rgba(15,15,15,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:13px 16px;display:flex;align-items:center;gap:12px;}
+        .back-btn{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:22px;cursor:pointer;transition:transform 0.08s;touch-action:manipulation;}
+        .back-btn:active{transform:scale(0.88);}
+        .h-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text);flex:1;}
+        .share-btn{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:20px;cursor:pointer;touch-action:manipulation;}
+        .share-btn:active{transform:scale(0.88);}
+
+        .page-scroll{flex:1;overflow-y:auto;padding-bottom:20px;}
+
+        /* HERO */
+        .hero{padding:32px 20px 24px;background:linear-gradient(160deg,rgba(0,180,255,0.05) 0%,transparent 100%);border-bottom:1px solid var(--border);text-align:center;position:relative;overflow:hidden;}
+        .hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(0,180,255,0.08),transparent 70%);pointer-events:none;}
+        .brand-logo{width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid var(--gold);margin:0 auto 16px;display:block;box-shadow:0 0 30px rgba(245,200,66,0.2);animation:fadeScale 0.5s ease;}
+        .brand-logo-placeholder{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--gold));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--black);margin:0 auto 16px;box-shadow:0 0 30px rgba(0,180,255,0.2);animation:fadeScale 0.5s ease;}
+        @keyframes fadeScale{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
+        .brand-name{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--text);margin-bottom:6px;}
+        .brand-tagline{font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:14px;}
+        .started-tag{display:inline-flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);color:var(--text-muted);font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;}
+
+        /* SECTIONS */
+        .section{padding:22px 18px 0;}
+        .section-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+        .section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+        /* STORY */
+        .story-text{font-size:13.5px;color:var(--text-muted);line-height:1.8;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;}
+
+        /* OWNER */
+        .owner-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;gap:14px;align-items:flex-start;animation:slideIn 0.4s ease;}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+        .owner-photo{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--blue);flex-shrink:0;}
+        .owner-photo-placeholder{width:64px;height:64px;border-radius:50%;background:var(--surface2);border:2px solid var(--blue);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+        .owner-role{font-size:11px;color:var(--blue);font-weight:700;margin-bottom:7px;}
+        .owner-note{font-size:12.5px;color:var(--text-muted);line-height:1.6;font-style:italic;}
+
+        /* PORTFOLIO */
+        .portfolio-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margin-top:12px;}
+        .port-item{aspect-ratio:1;overflow:hidden;cursor:pointer;background:var(--surface2);position:relative;}
+        .port-item img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s,filter 0.3s;filter:brightness(0.85);display:block;}
+        .port-item img.loaded{filter:brightness(1);}
+        .port-item:active img{transform:scale(1.05);}
+        .port-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);transition:background 0.2s;display:flex;align-items:flex-end;padding:6px;}
+        .port-item:hover .port-overlay{background:rgba(0,0,0,0.45);}
+        .port-cap{font-size:9px;font-weight:700;color:white;opacity:0;transition:opacity 0.2s;}
+        .port-item:hover .port-cap{opacity:1;}
+        .port-empty{grid-column:1/-1;text-align:center;padding:28px;color:var(--text-muted);font-size:13px;}
+
+        /* REVIEWS */
+        .review-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:9px;animation:slideIn 0.4s ease both;}
+        .rv-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+        .rv-name{font-size:13px;font-weight:700;color:var(--text);}
+        .rv-stars{font-size:12px;color:var(--gold);font-weight:700;}
+        .rv-text{font-size:12.5px;color:var(--text-muted);line-height:1.6;}
+        .rv-product{font-size:10px;color:var(--blue);font-weight:700;margin-top:5px;}
+
+        /* SOCIALS */
+        .socials-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px;}
+        .social-card{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:12px 14px;cursor:pointer;text-decoration:none;transition:border-color 0.15s;touch-action:manipulation;}
+        .social-card:hover{border-color:var(--gold);}
+        .social-card:active{transform:scale(0.95);}
+        .social-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+        .s-name{font-size:11px;font-weight:800;color:var(--text);}
+        .s-handle{font-size:10px;color:var(--text-muted);}
+
+        /* LOCATION */
+        .location-card{margin:22px 18px 0;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:14px;display:flex;align-items:center;gap:12px;}
+        .loc-icon{width:40px;height:40px;border-radius:10px;background:rgba(245,200,66,0.1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+        .loc-label{font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+        .loc-addr{font-size:13px;color:var(--text);font-weight:600;margin-top:2px;}
+
+        /* CTA */
+        .cta-section{padding:22px 18px;}
+        .cta-card{background:linear-gradient(135deg,rgba(0,180,255,0.06),rgba(0,144,212,0.04));border:1px solid rgba(0,180,255,0.15);border-radius:16px;padding:22px;text-align:center;}
+        .cta-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px;}
+        .cta-sub{font-size:13px;color:var(--text-muted);margin-bottom:16px;}
+        .cta-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:13px;font-size:14px;font-weight:800;border:none;cursor:pointer;margin-bottom:9px;font-family:'Space Grotesk',sans-serif;transition:transform 0.08s;touch-action:manipulation;text-decoration:none;}
+        .cta-btn:active{transform:scale(0.96);}
+        .btn-blue{background:linear-gradient(135deg,var(--blue2),var(--blue));color:white;}
+        .btn-wa{background:#25D366;color:white;}
+
+        /* VIEWER */
+        .viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.96);z-index:9000;align-items:center;justify-content:center;padding:20px;}
+        .viewer.show{display:flex;}
+        .viewer img{max-width:100%;max-height:88vh;border-radius:12px;}
+        .viewer-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.1);color:white;border:none;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;}
+        .viewer-caption{position:absolute;bottom:20px;left:0;right:0;text-align:center;color:rgba(255,255,255,0.6);font-size:12px;}
+
+        /* SKEL */
+        .skel{background:linear-gradient(90deg,#1a1a1a 25%,#222 50%,#1a1a1a 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;}
+        @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+        /* BNAV */
+        .bnav{position:sticky;bottom:0;z-index:100;display:flex;background:rgba(15,15,15,0.97);border-top:1px solid var(--border);backdrop-filter:blur(12px);}
+        .btab{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 5px 8px;color:var(--text-muted);cursor:pointer;font-size:10px;font-weight:600;gap:3px;text-decoration:none;border-top:2px solid transparent;touch-action:manipulation;}
+        .btab ion-icon{font-size:22px;}
+        .btab.active{color:var(--gold);border-top-color:var(--gold);}
+        .btab:active{opacity:0.7;}
+
+        * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <div class="back-btn" onclick="history.back()"><ion-icon name="arrow-back-outline"></ion-icon></div>
+        <div class="h-title">About Us</div>
+        <div class="share-btn" onclick="shareUs()"><ion-icon name="share-social-outline"></ion-icon></div>
+    </div>
+
+    <div class="page-scroll">
+        <!-- HERO -->
+        <div class="hero">
+            <div id="heroLogo" class="brand-logo-placeholder">E</div>
+            <div class="brand-name">Elite Print Studio</div>
+            <div class="brand-tagline" id="brandTagline">Premium custom printing and gifting in Ibadan, Nigeria.</div>
+            <div class="started-tag">Est. <span id="startedYear">2024</span></div>
+        </div>
+
+        <!-- STORY -->
+        <div class="section">
+            <div class="section-title">Our Story</div>
+            <div class="story-text" id="storyText">Loading...</div>
+        </div>
+
+        <!-- OWNER -->
+        <div class="section" id="ownerSection" style="display:none;">
+            <div class="section-title">Meet the Owner</div>
+            <div class="owner-card">
+                <div class="owner-photo-placeholder" id="ownerPhotoWrap">👤</div>
+                <div>
+                    <div class="owner-role">Founder and Head Consultant</div>
+                    <div class="owner-note" id="ownerNote"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PORTFOLIO -->
+        <div class="section">
+            <div class="section-title">Our Work</div>
+            <div class="portfolio-grid" id="portfolioGrid">
+                <div class="skel" style="aspect-ratio:1;"></div>
+                <div class="skel" style="aspect-ratio:1;"></div>
+                <div class="skel" style="aspect-ratio:1;"></div>
+            </div>
+        </div>
+
+        <!-- REVIEWS -->
+        <div class="section" style="margin-top:22px;">
+            <div class="section-title">What Customers Say</div>
+            <div id="reviewsList">
+                <div class="skel" style="height:80px;border-radius:14px;margin-bottom:9px;"></div>
+                <div class="skel" style="height:80px;border-radius:14px;"></div>
+            </div>
+        </div>
+
+        <!-- SOCIALS -->
+        <div class="section" style="margin-top:22px;">
+            <div class="section-title">Find Us Online</div>
+            <div class="socials-grid">
+                <a class="social-card" id="tiktokCard" href="#" target="_blank">
+                    <div class="social-icon" style="background:rgba(255,255,255,0.05);">🎵</div>
+                    <div><div class="s-name">TikTok</div><div class="s-handle" id="tiktokHandle">Follow us</div></div>
+                </a>
+                <a class="social-card" id="pinterestCard" href="#" target="_blank">
+                    <div class="social-icon" style="background:rgba(230,0,35,0.1);color:#E60023;">📌</div>
+                    <div><div class="s-name">Pinterest</div><div class="s-handle" id="pinterestHandle">See our boards</div></div>
+                </a>
+                <a class="social-card" id="facebookCard" href="#" target="_blank">
+                    <div class="social-icon" style="background:rgba(24,119,242,0.1);color:#1877F2;">📘</div>
+                    <div><div class="s-name">Facebook</div><div class="s-handle" id="facebookHandle">Like our page</div></div>
+                </a>
+                <a class="social-card" onclick="openWA()" href="#">
+                    <div class="social-icon" style="background:rgba(37,211,102,0.1);color:#25D366;">💬</div>
+                    <div><div class="s-name">WhatsApp</div><div class="s-handle">Chat with us</div></div>
+                </a>
+            </div>
+        </div>
+
+        <!-- LOCATION -->
+        <div class="location-card">
+            <div class="loc-icon">📍</div>
+            <div><div class="loc-label">Find Us</div><div class="loc-addr" id="locAddr">The Polytechnic, Ibadan Sango IBD</div></div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-section">
+            <div class="cta-card">
+                <div class="cta-title">Ready to Order?</div>
+                <div class="cta-sub">Browse our products and place your order. We will contact you on WhatsApp to confirm.</div>
+                <a href="/" class="cta-btn btn-blue"><ion-icon name="storefront-outline"></ion-icon> Browse Products</a>
+                <button class="cta-btn btn-wa" onclick="openWA()"><ion-icon name="logo-whatsapp"></ion-icon> Chat on WhatsApp</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bnav">
+        <a class="btab" href="/"><ion-icon name="storefront-outline"></ion-icon>Shop</a>
+        <a class="btab active" href="/about"><ion-icon name="person-outline"></ion-icon>About</a>
+        <div class="btab" onclick="openWA()"><ion-icon name="logo-whatsapp"></ion-icon>WhatsApp</div>
+    </div>
+</div>
+
+<!-- VIEWER -->
+<div class="viewer" id="viewer" onclick="closeViewer()">
+    <button class="viewer-close"><ion-icon name="close-outline"></ion-icon></button>
+    <img id="viewerImg" src="" alt="">
+    <div class="viewer-caption" id="viewerCap"></div>
+</div>
+
+<script>
+let settings = {};
+
+async function loadPage() {
+    try {
+        const [sr, pr, rr] = await Promise.all([fetch('/api/settings'), fetch('/api/portfolio'), fetch('/api/reviews')]);
+        const sd = await sr.json(); const pd = await pr.json(); const rd = await rr.json();
+        settings = sd.data || {};
+        applySettings(settings);
+        renderPortfolio(pd.data || []);
+        renderReviews(rd.data || []);
+    } catch {
+        document.getElementById('storyText').textContent = 'We are Elite Print Studio — premium custom printing in Ibadan.';
+    }
+}
+
+function applySettings(s) {
+    if (s.logo_url) {
+        const el = document.getElementById('heroLogo');
+        el.outerHTML = `<img class="brand-logo" src="${s.logo_url}" alt="Logo" id="heroLogo">`;
+    }
+    if (s.about_brand_story) document.getElementById('storyText').textContent = s.about_brand_story;
+    if (s.about_started_year) document.getElementById('startedYear').textContent = s.about_started_year;
+    if (s.about_owner_note) {
+        document.getElementById('ownerNote').textContent = s.about_owner_note;
+        document.getElementById('ownerSection').style.display = 'block';
+    }
+    if (s.about_owner_photo_url) {
+        const wrap = document.getElementById('ownerPhotoWrap');
+        wrap.outerHTML = `<img class="owner-photo" src="${s.about_owner_photo_url}" alt="Owner" id="ownerPhotoWrap">`;
+    }
+    if (s.business_address) document.getElementById('locAddr').textContent = s.business_address;
+    if (s.tiktok_handle) { document.getElementById('tiktokHandle').textContent = s.tiktok_handle; document.getElementById('tiktokCard').href = `https://tiktok.com/@${s.tiktok_handle.replace('@','')}`; }
+    if (s.pinterest_handle) { document.getElementById('pinterestHandle').textContent = s.pinterest_handle; document.getElementById('pinterestCard').href = `https://pinterest.com/${s.pinterest_handle.replace('@','')}`; }
+    if (s.facebook_handle) { document.getElementById('facebookHandle').textContent = s.facebook_handle; document.getElementById('facebookCard').href = `https://facebook.com/${s.facebook_handle.replace('@','')}`; }
+}
+
+function renderPortfolio(items) {
+    const grid = document.getElementById('portfolioGrid');
+    if (!items.length) { grid.innerHTML = `<div class="port-empty">Portfolio photos coming soon</div>`; return; }
+    grid.innerHTML = items.map(item => `
+        <div class="port-item" onclick="viewImg('${item.image_url}','${item.caption||''}')">
+            <img src="${item.image_url}" alt="${item.caption||''}" loading="lazy" onload="this.classList.add('loaded')">
+            <div class="port-overlay"><div class="port-cap">${item.caption||''}</div></div>
+        </div>`).join('');
+}
+
+function renderReviews(reviews) {
+    const list = document.getElementById('reviewsList');
+    if (!reviews.length) { list.innerHTML = `<p style="font-size:13px;color:var(--text-muted);text-align:center;padding:20px;">Reviews coming soon</p>`; return; }
+    list.innerHTML = reviews.map((r,i) => `
+        <div class="review-card" style="animation-delay:${i*0.08}s">
+            <div class="rv-top"><div class="rv-name">${r.customer_name}</div><div class="rv-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div></div>
+            <div class="rv-text">${r.review_text}</div>
+            ${r.product_type?`<div class="rv-product">${r.product_type}</div>`:''}
+        </div>`).join('');
+}
+
+function viewImg(url, cap) { document.getElementById('viewerImg').src=url; document.getElementById('viewerCap').textContent=cap; document.getElementById('viewer').classList.add('show'); }
+function closeViewer() { document.getElementById('viewer').classList.remove('show'); }
+function openWA() { window.open(`https://wa.me/${settings.whatsapp_number||'2348088060408'}?text=${encodeURIComponent('Hello Elite Print Studio!')}`, '_blank'); }
+function shareUs() {
+    if (navigator.share) { navigator.share({title:'Elite Print Studio',text:'Check out Elite Print Studio — premium custom printing in Ibadan!',url:window.location.origin}); }
+    else { navigator.clipboard?.writeText(window.location.origin); alert('Link copied!'); }
+}
+
+loadPage();
+</script>
+</body>
+</html>
