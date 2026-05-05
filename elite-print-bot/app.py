@@ -82,6 +82,12 @@ async def get_products(category_id: str = None):
 async def create_product(request: Request):
     try:
         data = await request.json()
+        
+        # Ensure the column name matches your SQL: 'category_id'
+        # If your frontend sends 'category', rename it here:
+        if "category" in data and "category_id" not in data:
+            data["category_id"] = data.pop("category")
+            
         res = supabase.table("products").insert(data).execute()
         return {"success": True, "data": res.data}
     except Exception as e:
