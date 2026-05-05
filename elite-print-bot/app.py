@@ -65,9 +65,14 @@ async def get_categories():
 @app.get("/api/products")
 async def get_products(category_id: str = None):
     try:
+        # Note: We use "categories(*)" because the link is now fixed!
+        # If your column name in products is 'category', use categories!category(*)
         query = supabase.table("products").select("*, categories(*), product_images(*)").eq("is_active", True)
+        
         if category_id:
-            query = query.eq("category_id", category_id)
+            # If your column in the DB is named 'category', use .eq("category", category_id)
+            query = query.eq("category", category_id)
+            
         res = query.execute()
         return {"data": res.data}
     except Exception as e:
